@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using Konscious.Security.Cryptography;
 public class PasswordController
 {
