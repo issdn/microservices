@@ -8,12 +8,16 @@ using User.Models;
 
 namespace User.Tests;
 
-public class RegisterMock
+public class UserControllerTests
 {
+    string Min8Chars_Max64Chars_Required_Password = "12345678";
+    string Min8Chars_Max32Chars_Required_Username = "username";
+    string Correct_Max255Chars_Required_Email = "username@user.com";
+
     private readonly MscDbContext _context;
     private readonly UserController _userController;
 
-    public RegisterMock()
+    public UserControllerTests()
     {
         _context = new MscDbContext();
         _userController = new UserController();
@@ -22,10 +26,6 @@ public class RegisterMock
     [Fact]
     public async void Register_CheckValidityOfUserRegistrationDataAndInsertToDatabase_Ok()
     {
-
-        string Min8Chars_Max64Chars_Required_Password = "12345678";
-        string Min8Chars_Max32Chars_Required_Username = "username";
-        string Correct_Max255Chars_Required_Email = "username@user.com";
 
         var registerModel = new UserRegisterModel
         {
@@ -44,9 +44,7 @@ public class RegisterMock
     [Fact]
     public void Login_CheckValidityOfUserLoginDataAndSelectFromDatabase_Ok()
     {
-        string Min8Chars_Max64Chars_Required_Password = "12345678";
-        string Min8Chars_Max32Chars_Required_Username = "username";
-
+        AddUserIfNotExists();
         IActionResult response = _userController.Login(new UserLoginModel
         {
             Password = Min8Chars_Max64Chars_Required_Password,
@@ -61,10 +59,7 @@ public class RegisterMock
     [Fact]
     public async void RemoveAccount_CheckValidityOfUserLoginDataAndDeleteFromDatabase_Ok()
     {
-
-        string Min8Chars_Max64Chars_Required_Password = "12345678";
-        string Min8Chars_Max32Chars_Required_Username = "username";
-
+        AddUserIfNotExists();
         IActionResult response = await _userController.RemoveAccount(new UserLoginModel
         {
             Password = Min8Chars_Max64Chars_Required_Password,
@@ -74,5 +69,22 @@ public class RegisterMock
         ObjectResult result = (ObjectResult)response;
 
         Assert.Equal(200, result.StatusCode);
+    }
+
+    private async void AddUserIfNotExists()
+    {
+        var user = _context.Users.FirstOrDefault(x => x.Username == Min8Chars_Max32Chars_Required_Username);
+
+        if (user == null)
+        {
+            await _context.Users.AddAsync(new UserDbEntryModel
+            {
+                Username = Min8Chars_Max32Chars_Required_Username,
+                Password = Min8Chars_Max64Chars_Required_Password,
+                Email = Correct_Max255Chars_Required_Email
+            });
+
+            await _context.SaveChangesAsync();
+        }
     }
 }
