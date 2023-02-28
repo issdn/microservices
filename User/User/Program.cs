@@ -3,10 +3,32 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using User.Context;
+using User.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+string getEnvironmentVariableOrAppSetting(string variableName)
+{
+    var value = Environment.GetEnvironmentVariable(variableName);
+    if (value != null)
+    {
+        return value;
+    }
+    return builder!.Configuration[variableName];
+}
+
+string Issuer = getEnvironmentVariableOrAppSetting("Issuer");
+string Audience = getEnvironmentVariableOrAppSetting("Audience");
+string Key = getEnvironmentVariableOrAppSetting("Key");
+
+builder.Services.AddScoped<JWTDataModel>(provider => new JWTDataModel
+{
+    Issuer = Issuer,
+    Audience = Audience,
+    Key = Key,
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MscDbContext>(dbContextOptions =>
@@ -23,8 +45,7 @@ builder.Services.AddAuthentication(options =>
     {
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey
-        (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key)),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = false,

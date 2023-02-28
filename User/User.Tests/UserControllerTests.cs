@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using User.Context;
 using User.Controllers;
 using User.Models;
@@ -20,13 +21,17 @@ public class UserControllerTests
     public UserControllerTests()
     {
         _context = new MscDbContext();
-        _userController = new UserController();
+        _userController = new UserController(new JWTDataModel
+        {
+            Issuer = "None",
+            Audience = "None",
+            Key = "LJI+iKUWnHq2aW8nUUxiqTzXPEY96hRGvCrBpA5dyX4gNJfrbZplbjXAVq1Jh6udXvtD4bRoAWd7CQL2ar2dQA=="
+        });
     }
 
     [Fact]
     public async void Register_CheckValidityOfUserRegistrationDataAndInsertToDatabase_Ok()
     {
-
         var registerModel = new UserRegisterModel
         {
             Password = Min8Chars_Max64Chars_Required_Password,

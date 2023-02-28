@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using User.Models;
 using User.Context;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace User.Controllers
 {
@@ -8,17 +13,23 @@ namespace User.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly JWTDataModel _jwtData;
         private readonly MscDbContext _context;
 
-        public UserController()
+        public UserController(JWTDataModel jwtData)
         {
+            _jwtData = jwtData;
             _context = new MscDbContext();
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegisterModel userData)
         {
-            System.Console.WriteLine(userData.Password);
+            var user = _context.Users.Where(user => user.Username == userData.Username).FirstOrDefault();
+            if (user != null)
+            {
+                return BadRequest(new { message = "Username already exists" });
+            }
             var salt = PasswordController.GetSalt();
             var hashed_password = PasswordController.HashPassword(userData.Password!, salt);
             await _context.Users.AddAsync(new UserDbEntryModel
@@ -29,7 +40,8 @@ namespace User.Controllers
                 Salt = salt
             });
             await _context.SaveChangesAsync();
-            return Ok(new { message = "User created" });
+            var token = CreateJwtToken(userData);
+            return Ok(new { message = "User created", token = token });
         }
 
         [HttpPost("login")]
@@ -54,6 +66,7 @@ namespace User.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("remove-account")]
         public async Task<IActionResult> RemoveAccount(UserLoginModel userData)
         {
@@ -76,6 +89,28 @@ namespace User.Controllers
             {
                 return BadRequest(new { message = "Invalid password or username" });
             }
+        }
+
+        public string CreateJwtToken(UserRegisterModel user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtData.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtData.Issuer,
+                audience: _jwtData.Audience,
+                claims: claims,
+                expires: DateTime.Now.AddDays(7),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
     }
