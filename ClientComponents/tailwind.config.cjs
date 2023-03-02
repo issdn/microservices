@@ -10,6 +10,7 @@ module.exports = {
       colors: {
         secondary: "#eeebf0",
         majorelle: "#724CF9",
+        "majorelle-dark": "#6242D6",
       },
     },
   },
