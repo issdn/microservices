@@ -9,30 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-string getEnvironmentVariableOrAppSetting(string variableName)
-{
-    var value = Environment.GetEnvironmentVariable(variableName);
-    if (value != null)
-    {
-        return value;
-    }
-    return builder!.Configuration[variableName];
-}
-
-string Issuer = getEnvironmentVariableOrAppSetting("Issuer");
-string Audience = getEnvironmentVariableOrAppSetting("Audience");
-string Key = getEnvironmentVariableOrAppSetting("Key");
-
 builder.Services.AddScoped<JWTDataModel>(provider => new JWTDataModel
 {
-    Issuer = Issuer,
-    Audience = Audience,
-    Key = Key,
+    Issuer = builder.Configuration["Jwt:Issuer"],
+    Audience = builder.Configuration["Jwt:Audience"],
+    Key = builder.Configuration["Jwt:Key"],
 });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+System.Console.WriteLine(connectionString);
+
 builder.Services.AddDbContext<MscDbContext>(dbContextOptions =>
-    dbContextOptions.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 31))));
+    dbContextOptions.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32))));
 
 builder.Services.AddAuthentication(options =>
 {
@@ -45,7 +33,7 @@ builder.Services.AddAuthentication(options =>
     {
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = false,
