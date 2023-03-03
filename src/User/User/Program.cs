@@ -17,10 +17,13 @@ builder.Services.AddScoped<JWTDataModel>(provider => new JWTDataModel
 });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-System.Console.WriteLine(connectionString);
 
 builder.Services.AddDbContext<MscDbContext>(dbContextOptions =>
-    dbContextOptions.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32))));
+    dbContextOptions
+        .UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32)))
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors());
 
 builder.Services.AddAuthentication(options =>
 {

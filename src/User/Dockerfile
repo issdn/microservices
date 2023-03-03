@@ -2,10 +2,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 5113:80
 
-ENV Issuer="Test"
-ENV Key="LJI+iKUWnHq2aW8nUUxiqTzXPEY96hRGvCrBpA5dyX4gNJfrbZplbjXAVq1Jh6udXvtD4bRoAWd7CQL2ar2dQA=="
-ENV Audience="Test"
-
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ./User/. /src/

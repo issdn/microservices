@@ -1,24 +1,19 @@
 services:
+  db:
+    image: mysql:8.0.32
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: msc
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   user:
     depends_on:
       - db
     build: /user
     ports:
       - "5113:80"
-    links:
-      - db
     environment:
-      - ConnectionStrings__DefaultConnection=Server=localhost;Database=msc;User=root;Password=root
+      - ConnectionStrings__DefaultConnection=server=db;user=root;password=root;database=msc
       - JWT__Issuer=None
       - JWT__Audience=None
       - JWT__Key=LJI+iKUWnHq2aW8nUUxiqTzXPEY96hRGvCrBpA5dyX4gNJfrbZplbjXAVq1Jh6udXvtD4bRoAWd7CQL2ar2dQA==
-  db:
-    image: mysql:8.0.32
-    ports:
-      - "5114:3306"
-    environment:
-      MYSQL_ROOT_USER: root
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: msc
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
