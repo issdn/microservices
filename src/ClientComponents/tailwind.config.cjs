@@ -9,8 +9,17 @@ module.exports = {
       },
       colors: {
         secondary: "#eeebf0",
-        majorelle: "#724CF9",
-        "majorelle-dark": "#6242D6",
+      },
+      keyframes: {
+        ripple: {
+          to: {
+            transform: "scale(3)",
+            opacity: 0,
+          },
+        },
+      },
+      animation: {
+        ripple: "ripple 800ms linear",
       },
     },
   },
