@@ -37,9 +37,9 @@ export default function Form({
   return (
     <form
       onSubmit={submitHandler}
-      className="bg-secondary px-2 w-full md:px-0 md:w-1/4 flex flex-col justify-center items-center gap-y-10 p-8 drop-shadow-md font-mono"
+      className="bg-secondary text-neutral-800 px-2 w-full md:px-0 md:w-1/4 flex flex-col justify-center items-center gap-y-10 p-8 drop-shadow-md font-mono"
     >
-      <h1 className="text-2xl">Register</h1>
+      <h1 className="text-2xl ">Register</h1>
       <div className="flex flex-col gap-y-4 md:px-8 w-full">
         <div className="flex flex-col gap-y-4 w-full">
           {Object.values(inputsObject).map((inputObject) => (
