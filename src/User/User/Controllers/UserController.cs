@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using User.Models;
 using User.Context;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using User.Services;
 
@@ -40,8 +36,8 @@ namespace User.Controllers
             {
                 return BadRequest(new { title = "Username is already in use" });
             }
-            var salt = PasswordController.GetSalt();
-            var hashed_password = PasswordController.HashPassword(userData.Password!, salt);
+            var salt = PasswordService.GetSalt();
+            var hashed_password = PasswordService.HashPassword(userData.Password!, salt);
             try
             {
 
@@ -76,11 +72,12 @@ namespace User.Controllers
             var user = _context.Users.Where(user => user.Username == userData.Username).FirstOrDefault();
             if (user != null)
             {
-                var is_valid = PasswordController.VerifyHash(userData.Password, user.Salt!, user.Password!);
+                var is_valid = PasswordService.VerifyHash(userData.Password, user.Salt!, user.Password!);
                 if (is_valid)
                 {
                     var token = new JWTService(_jwtData).CreateJwtToken(userData);
-                    return Ok(new { title = "Login successful", token = token });
+                    HttpContext.Response.Cookies.Append("token", token);
+                    return Ok(new { title = "Login successful" });
                 }
                 else
                 {
@@ -94,13 +91,21 @@ namespace User.Controllers
         }
 
         [Authorize]
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            HttpContext.Response.Cookies.Delete("token");
+            return Ok(new { title = "Logout successful" });
+        }
+
+        [Authorize]
         [HttpPost("remove-account")]
         public async Task<IActionResult> RemoveAccount(UserLoginModel userData)
         {
             var user = _context.Users.Where(user => user.Username == userData.Username).FirstOrDefault();
             if (user != null)
             {
-                var is_valid = PasswordController.VerifyHash(userData.Password, user.Salt!, user.Password!);
+                var is_valid = PasswordService.VerifyHash(userData.Password, user.Salt!, user.Password!);
                 if (is_valid)
                 {
                     _context.Users.Remove(user);

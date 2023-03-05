@@ -1,7 +1,10 @@
-import { InputsObjectsType, useInputs, useFetch } from "../hooks";
-import { validator } from "../validation";
-import { Button } from "./Button";
-import InputStack from "./InputStack";
+import {
+  InputsObjectsType,
+  useInputs,
+  useFetch,
+} from "../../StandardComponents/Form/hooks";
+import { validator } from "../../StandardComponents/Form/validation";
+import Form from "../../StandardComponents/Form/Form";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -32,11 +35,10 @@ const inputsObject: InputsObjectsType = [
 ];
 
 export default function Registration() {
-  const { isLoading, error, sendRequest } = useFetch();
+  const { isLoading, sendRequest } = useFetch();
   const formInputs = useInputs(inputsObject);
 
-  const submitHandler = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async () => {
     await sendRequest("http://localhost:5113/v1/user/auth/register", {
       method: "POST",
       headers: {
@@ -47,15 +49,10 @@ export default function Registration() {
   };
 
   return (
-    <form
-      onSubmit={submitHandler}
-      className="bg-secondary px-2 w-full md:px-0 md:w-1/4 flex flex-col justify-center items-center gap-y-10 p-8 drop-shadow-md font-mono"
-    >
-      <h1 className="text-2xl">Register</h1>
-      <div className="flex flex-col gap-y-4 md:px-8 w-full">
-        <InputStack formInputs={formInputs} inputsObject={inputsObject} />
-        <Button attributes={{ disabled: isLoading }}>Register</Button>
-      </div>
-    </form>
+    <Form
+      inputsObject={inputsObject}
+      isLoading={isLoading}
+      onSubmit={onSubmit}
+    />
   );
 }

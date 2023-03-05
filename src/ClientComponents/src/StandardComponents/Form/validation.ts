@@ -1,3 +1,5 @@
+import { InputsObjectsType, useInputs } from "./hooks";
+
 // Stolen straight from yup.
 // https://github.com/jquense/yup/blob/master/src/string.ts
 const rEmail =
@@ -58,6 +60,18 @@ class StringValidator {
     return _errors;
   };
 }
+
+export const canSubmitForm = (
+  inputsObjects: InputsObjectsType,
+  inputsValues: ReturnType<typeof useInputs>["inputsValues"]
+) => {
+  let _canSubmit = true;
+  inputsObjects.forEach((input) => {
+    const _errors = input.validator.validate(inputsValues[input.name]);
+    if (_errors.length > 0) _canSubmit = false;
+  });
+  return _canSubmit;
+};
 
 export const validator = () => new StringValidator();
 export type ValidatorType = StringValidator;

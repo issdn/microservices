@@ -20,6 +20,15 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddControllers();
+
+builder.Services.AddCookiePolicy(options =>
+{
+    options.MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None;
+    options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+    options.Secure = Microsoft.AspNetCore.Http.CookieSecurePolicy.Always;
+});
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new()
@@ -33,7 +42,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-builder.Services.AddControllers();
 
 builder.Services.AddScoped<JWTDataModel>(provider => new JWTDataModel
 {
@@ -56,7 +64,9 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
+})
+.AddCookie(o => o.Cookie.Name = "token")
+.AddJwtBearer(o =>
 {
     o.TokenValidationParameters = new TokenValidationParameters
     {
@@ -65,8 +75,16 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidateLifetime = false,
+        ValidateLifetime = true,
         ValidateIssuerSigningKey = true
+    };
+    o.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Cookies["token"];
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -77,6 +95,8 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 app.UseCors();
+
+app.UseCookiePolicy();
 
 app.UseAuthentication();
 app.UseAuthorization();

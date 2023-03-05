@@ -1,4 +1,4 @@
-import { getPasswordStrength } from "../functions";
+import { getPasswordStrength } from "./functions";
 
 export default function PasswordStrength({ value }: { value: string }) {
   const passwordStrength = getPasswordStrength(value);

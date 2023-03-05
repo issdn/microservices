@@ -1,5 +1,6 @@
 using Konscious.Security.Cryptography;
-public class PasswordController
+namespace User.Services;
+public class PasswordService
 {
     public static string HashPassword(string password, string salt)
     {

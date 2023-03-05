@@ -18,21 +18,60 @@ export const useInputs = (inputsObjects: InputsObjectsType) => {
     )
   );
 
+  const [_errors, _setErrors] = useState<{ [key: string]: string[] }>(
+    Object.fromEntries(
+      Object.values(inputsObjects).map((inputObject) => [
+        inputObject.name,
+        inputObject.validator.validate(""),
+      ])
+    )
+  );
+
+  const [touched, _setTouched] = useState(
+    Object.fromEntries(
+      Object.values(inputsObjects).map((inputObject) => [
+        inputObject.name,
+        false,
+      ])
+    )
+  );
+
   const setInputValue = (name: string, value: string) => {
     setInputsValues({ ...inputsValues, [name]: value });
+  };
+
+  const setTouched = (name: string) => {
+    _setTouched({ ...touched, [name]: true });
+  };
+
+  const setErrors = (name: string, errors: string[]) => {
+    _setErrors({ ..._errors, [name]: errors });
+  };
+
+  const setAllTouched = () => {
+    _setTouched(
+      Object.fromEntries(
+        Object.values(inputsObjects).map((inputObject) => [
+          inputObject.name,
+          true,
+        ])
+      )
+    );
   };
 
   const getInputValue = (name: keyof typeof inputsValues) => inputsValues[name];
 
   return {
+    errors: _errors,
+    setErrors,
+    touched,
+    setTouched,
     inputsValues,
     getInputValue,
     setInputValue,
+    setAllTouched,
   };
 };
-
-export type SetInputValueType = ReturnType<typeof useInputs>["setInputValue"];
-export type GetInputValueType = ReturnType<typeof useInputs>["getInputValue"];
 
 export const useFetch = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -60,15 +99,14 @@ export const useFetch = () => {
               "Something went wrong, please try again later."
           );
       }
-    } catch (err) {
+    } catch (err: any) {
       setError(err.message || "Something went wrong, please try again later.");
     }
     setIsLoading(false);
   };
-  console.log(error);
+
   return {
     isLoading,
-    error,
     sendRequest,
   };
 };
