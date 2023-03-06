@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ValidatorType } from "./validation";
+import { useToastContext } from "../Toast/hooks";
+import { ToastType } from "../Toast/ToastContainer";
 
 export type InputObjectType = {
   name: string;
@@ -10,6 +12,18 @@ export type InputObjectType = {
 };
 
 export type InputsObjectsType = InputObjectType[];
+
+type OkResponseType = {
+  title: string;
+};
+
+type ErrorResponseType = {
+  title: string;
+  status: number;
+  errors: {
+    [key: string]: string[];
+  };
+};
 
 export const useInputs = (inputsObjects: InputsObjectsType) => {
   const [inputsValues, setInputsValues] = useState(
@@ -73,34 +87,47 @@ export const useInputs = (inputsObjects: InputsObjectsType) => {
   };
 };
 
-export const useFetch = () => {
+const handleResponse = async (
+  response: Response,
+  addToast: ReturnType<typeof useToastContext>["addToast"]
+) => {
+  const data = await response.json();
+  if (response.ok) {
+    addToast({
+      title: data.title || "Success!",
+      type: "success",
+    });
+  } else {
+    let toastObject: ToastType = {
+      title: data.title || "Oops!",
+      type: "warning",
+    };
+    if (data.hasOwnProperty("errors")) {
+      toastObject = {
+        ...toastObject,
+        message: Object.values((data as ErrorResponseType).errors)[0][0],
+      };
+    }
+    addToast(toastObject);
+  }
+};
+
+export const useFetch = (
+  addToast: ReturnType<typeof useToastContext>["addToast"]
+) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const sendRequest = async (url: string, init?: RequestInit) => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      setError(null);
-      const responseData = await fetch(url, init);
-      switch (responseData.status) {
-        case 200:
-          return responseData;
-        case 400:
-          setError(responseData.statusText || "Bad request");
-        case 401:
-          setError(responseData.statusText || "Unauthorized");
-        case 404:
-          setError(responseData.statusText || "Not found");
-        case 500:
-          setError(responseData.statusText || "Internal server error");
-        default:
-          setError(
-            responseData.statusText ||
-              "Something went wrong, please try again later."
-          );
-      }
+      fetch(url, init).then(async (response) => {
+        await handleResponse(response, addToast);
+      });
     } catch (err: any) {
-      setError(err.message || "Something went wrong, please try again later.");
+      addToast({
+        title: err.message || "Something went wrong, please try again later.",
+        type: "warning",
+      });
     }
     setIsLoading(false);
   };

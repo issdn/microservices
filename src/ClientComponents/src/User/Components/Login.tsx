@@ -5,6 +5,7 @@ import {
 } from "../../StandardComponents/Form/hooks";
 import { validator } from "../../StandardComponents/Form/validation";
 import Form from "../../StandardComponents/Form/Form";
+import { useToastContext } from "../../StandardComponents/Toast/hooks";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -28,7 +29,7 @@ const inputsObject: InputsObjectsType = [
 ];
 
 export default function Login() {
-  const { isLoading, sendRequest } = useFetch();
+  const { isLoading, sendRequest } = useFetch(useToastContext().addToast);
   const formInputs = useInputs(inputsObject);
 
   const onSubmit = async () => {
@@ -46,6 +47,9 @@ export default function Login() {
       inputsObject={inputsObject}
       isLoading={isLoading}
       onSubmit={onSubmit}
+      heading="Login"
+      buttonText="Login"
+      formInputs={formInputs}
     />
   );
 }

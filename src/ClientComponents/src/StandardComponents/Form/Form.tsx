@@ -3,18 +3,23 @@ import { canSubmitForm } from "./validation";
 import { Button } from "../Button";
 import Spinner from "../Spinner";
 import Input from "./Input";
-import { useEffect } from "react";
 
 type FormPropsType = {
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   inputsObject: InputsObjectsType;
+  heading: string;
+  buttonText: string;
+  formInputs: ReturnType<typeof useInputs>;
 };
 
 export default function Form({
   onSubmit,
   isLoading,
   inputsObject,
+  heading,
+  buttonText,
+  formInputs,
 }: FormPropsType) {
   const {
     errors,
@@ -25,7 +30,7 @@ export default function Form({
     getInputValue,
     setInputValue,
     setAllTouched,
-  } = useInputs(inputsObject);
+  } = formInputs;
 
   const submitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +44,7 @@ export default function Form({
       onSubmit={submitHandler}
       className="bg-secondary text-neutral-800 px-2 w-full md:px-0 md:w-1/4 flex flex-col justify-center items-center gap-y-10 p-8 drop-shadow-md font-mono"
     >
-      <h1 className="text-2xl ">Register</h1>
+      <h1 className="text-2xl ">{heading}</h1>
       <div className="flex flex-col gap-y-4 md:px-8 w-full">
         <div className="flex flex-col gap-y-4 w-full">
           {Object.values(inputsObject).map((inputObject) => (
@@ -63,7 +68,7 @@ export default function Form({
           ))}
         </div>
         <Button attributes={{ disabled: isLoading }}>
-          {isLoading ? <Spinner size="md" /> : "Register"}
+          {isLoading ? <Spinner size="md" /> : buttonText}
         </Button>
       </div>
     </form>
