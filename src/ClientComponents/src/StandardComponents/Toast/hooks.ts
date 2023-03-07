@@ -1,6 +1,5 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { ToastType } from "./ToastContainer";
-import React from "react";
 
 export type ToastColorType = "warning" | "success";
 
@@ -35,15 +34,3 @@ export const useToast = () => {
 
   return { toasts, addToast, deleteToast };
 };
-
-export const ToastContext = React.createContext<{
-  toasts: ReturnType<typeof useToast>["toasts"];
-  addToast: ReturnType<typeof useToast>["addToast"];
-  deleteToast: ReturnType<typeof useToast>["deleteToast"];
-}>({
-  toasts: [],
-  addToast: () => {},
-  deleteToast: () => {},
-});
-
-export const useToastContext = () => useContext(ToastContext);

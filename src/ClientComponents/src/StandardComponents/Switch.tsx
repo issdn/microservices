@@ -31,11 +31,11 @@ type SwitchPropsType = {
   handleSwitch: ReturnType<typeof useSwitch>["handleSwitch"];
 };
 
-export default function Switch({
+const Switch: React.FC<SwitchPropsType> = ({
   options,
   selected,
   handleSwitch,
-}: SwitchPropsType) {
+}) => {
   return (
     <div className="p-1.5 bg-secondary rounded-3xl drop-shadow-md">
       <div className="flex flex-row gap-x-1 rounded-3xl shadow-neo-1">
@@ -55,4 +55,6 @@ export default function Switch({
       </div>
     </div>
   );
-}
+};
+
+export default Switch;

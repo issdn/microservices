@@ -7,9 +7,11 @@ type SwitableContainerPropsType = {
   currentlySelected: string;
 };
 
-export default function SwitchableContainer({
+const SwitchableContainer: React.FC<SwitableContainerPropsType> = ({
   components,
   currentlySelected,
-}: SwitableContainerPropsType) {
+}) => {
   return <>{components[currentlySelected]}</>;
-}
+};
+
+export default SwitchableContainer;

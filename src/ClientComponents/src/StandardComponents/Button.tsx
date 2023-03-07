@@ -1,9 +1,17 @@
-export const Button = ({
-  children,
-  attributes,
-}: {
+import Spinner from "./Spinner";
+
+type ButtonProps = {
   children: React.ReactNode;
+  onClick: () => void;
+  isLoading: boolean;
   attributes?: React.ButtonHTMLAttributes<HTMLButtonElement>;
+};
+
+const Button: React.FC<ButtonProps> = ({
+  children,
+  onClick,
+  attributes,
+  isLoading,
 }) => {
   const createRipple = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const button = e.currentTarget;
@@ -33,10 +41,16 @@ export const Button = ({
   return (
     <button
       {...attributes}
-      onClick={createRipple}
+      disabled={isLoading}
+      onClick={(e) => {
+        createRipple(e);
+        onClick();
+      }}
       className="w-full disabled:bg-violet-500 relative py-2 overflow-hidden rounded-xl flex flex-row justify-center bg-violet-600 text-secondary text-xl drop-shadow-lg"
     >
-      {children}
+      {isLoading ? <Spinner /> : children}
     </button>
   );
 };
+
+export default Button;

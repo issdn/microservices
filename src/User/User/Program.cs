@@ -33,7 +33,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new()
     {
-        Title = "UserApi",
+        Title = "User Api",
         Version = "v1",
         Description = "Register & Login API with JWT Authentication."
     });
@@ -82,7 +82,7 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            var accessToken = context.Request.Cookies["token"];
+            context.Token = context.Request.Cookies["token"];
             return Task.CompletedTask;
         }
     };

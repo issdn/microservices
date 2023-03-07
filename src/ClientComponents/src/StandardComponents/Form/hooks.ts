@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ValidatorType } from "./validation";
-import { useToastContext } from "../Toast/hooks";
 import { ToastType } from "../Toast/ToastContainer";
+import { useToastContext } from "../Toast/toastContext";
 
 export type InputObjectType = {
   name: string;
@@ -12,10 +12,6 @@ export type InputObjectType = {
 };
 
 export type InputsObjectsType = InputObjectType[];
-
-type OkResponseType = {
-  title: string;
-};
 
 type ErrorResponseType = {
   title: string;
@@ -89,7 +85,8 @@ export const useInputs = (inputsObjects: InputsObjectsType) => {
 
 const handleResponse = async (
   response: Response,
-  addToast: ReturnType<typeof useToastContext>["addToast"]
+  addToast: ReturnType<typeof useToastContext>["addToast"],
+  onSuccess: () => void
 ) => {
   const data = await response.json();
   if (response.ok) {
@@ -97,6 +94,7 @@ const handleResponse = async (
       title: data.title || "Success!",
       type: "success",
     });
+    onSuccess();
   } else {
     let toastObject: ToastType = {
       title: data.title || "Oops!",
@@ -117,15 +115,19 @@ export const useFetch = (
 ) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const sendRequest = async (url: string, init?: RequestInit) => {
+  const sendRequest = async (
+    url: string,
+    init?: RequestInit,
+    onSuccess?: () => void
+  ) => {
     setIsLoading(true);
     try {
       fetch(url, init).then(async (response) => {
-        await handleResponse(response, addToast);
+        await handleResponse(response, addToast, onSuccess || (() => {}));
       });
     } catch (err: any) {
       addToast({
-        title: err.message || "Something went wrong, please try again later.",
+        title: err.message || "Network error.",
         type: "warning",
       });
     }

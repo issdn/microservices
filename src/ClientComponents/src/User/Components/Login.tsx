@@ -5,7 +5,8 @@ import {
 } from "../../StandardComponents/Form/hooks";
 import { validator } from "../../StandardComponents/Form/validation";
 import Form from "../../StandardComponents/Form/Form";
-import { useToastContext } from "../../StandardComponents/Toast/hooks";
+import { useToastContext } from "../../StandardComponents/Toast/toastContext";
+import { useSession } from "../sessionContext";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -28,18 +29,23 @@ const inputsObject: InputsObjectsType = [
   },
 ];
 
-export default function Login() {
+const Login = () => {
+  const session = useSession();
   const { isLoading, sendRequest } = useFetch(useToastContext().addToast);
   const formInputs = useInputs(inputsObject);
 
   const onSubmit = async () => {
-    await sendRequest("http://localhost:5113/v1/user/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    sendRequest(
+      "/v1/user/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formInputs.inputsValues),
       },
-      body: JSON.stringify(formInputs.inputsValues),
-    });
+      session.login
+    );
   };
 
   return (
@@ -52,4 +58,6 @@ export default function Login() {
       formInputs={formInputs}
     />
   );
-}
+};
+
+export default Login;

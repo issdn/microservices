@@ -4,14 +4,12 @@ export type IconPropsType = {
   styles?: string;
 };
 
-export default function Icon({
-  name,
-  fill = false,
-  styles = "",
-}: IconPropsType) {
+const Icon: React.FC<IconPropsType> = ({ name, fill = false, styles = "" }) => {
   return (
     <i className={`material-icons${fill ? "" : "-outlined"} ${styles}`}>
       {name}
     </i>
   );
-}
+};
+
+export default Icon;

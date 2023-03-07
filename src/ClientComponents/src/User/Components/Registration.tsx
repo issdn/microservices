@@ -5,7 +5,7 @@ import {
 } from "../../StandardComponents/Form/hooks";
 import { validator } from "../../StandardComponents/Form/validation";
 import Form from "../../StandardComponents/Form/Form";
-import { useToastContext } from "../../StandardComponents/Toast/hooks";
+import { useToastContext } from "../../StandardComponents/Toast/toastContext";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -35,12 +35,12 @@ const inputsObject: InputsObjectsType = [
   },
 ];
 
-export default function Registration() {
+const Registration: React.FC = () => {
   const { isLoading, sendRequest } = useFetch(useToastContext().addToast);
   const formInputs = useInputs(inputsObject);
 
   const onSubmit = async () => {
-    await sendRequest("http://localhost:5113/v1/user/auth/register", {
+    await sendRequest("user/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -59,4 +59,6 @@ export default function Registration() {
       formInputs={formInputs}
     />
   );
-}
+};
+
+export default Registration;

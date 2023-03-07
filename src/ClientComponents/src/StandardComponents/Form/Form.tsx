@@ -1,6 +1,6 @@
 import { InputsObjectsType, useInputs } from "./hooks";
 import { canSubmitForm } from "./validation";
-import { Button } from "../Button";
+import Button from "../Button";
 import Spinner from "../Spinner";
 import Input from "./Input";
 
@@ -13,14 +13,14 @@ type FormPropsType = {
   formInputs: ReturnType<typeof useInputs>;
 };
 
-export default function Form({
+const Form: React.FC<FormPropsType> = ({
   onSubmit,
   isLoading,
   inputsObject,
   heading,
   buttonText,
   formInputs,
-}: FormPropsType) {
+}) => {
   const {
     errors,
     setErrors,
@@ -67,10 +67,12 @@ export default function Form({
             />
           ))}
         </div>
-        <Button attributes={{ disabled: isLoading }}>
-          {isLoading ? <Spinner size="md" /> : buttonText}
+        <Button onClick={() => {}} isLoading={isLoading}>
+          {buttonText}
         </Button>
       </div>
     </form>
   );
-}
+};
+
+export default Form;

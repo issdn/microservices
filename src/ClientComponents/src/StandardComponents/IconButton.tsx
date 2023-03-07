@@ -7,14 +7,14 @@ type IconButtonPropsType = IconPropsType & {
   attributes?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 };
 
-export default function IconButton({
+const IconButton: React.FC<IconButtonPropsType> = ({
   name,
   fill = false,
   styles = "",
   type = "basic",
   attributes,
   onClick,
-}: IconButtonPropsType) {
+}) => {
   return (
     <button
       {...attributes}
@@ -24,4 +24,6 @@ export default function IconButton({
       <Icon name={name} fill={fill} styles={styles} />
     </button>
   );
-}
+};
+
+export default IconButton;
