@@ -13,13 +13,12 @@ const toastStyleTypes = {
   warning: { icon: "close", color: "text-rose-600", border: "border-rose-600" },
 };
 
-export default function Toast({
-  info,
-  deleteToast,
-}: {
+type ToastProps = {
   info: ToastType;
   deleteToast: any;
-}) {
+};
+
+const Toast: React.FC<ToastProps> = ({ info, deleteToast }) => {
   const [timeout] = useTimeout(() => {
     deleteToast(info.id);
   }, info.timeout as number);
@@ -28,7 +27,7 @@ export default function Toast({
 
   return (
     <div
-      className={`bg-white drop-shadow-2xl border text-neutral-800 border-gray-100 gap-x-4 w-full md:max-w-[25%] md:w-fit py-[0.8rem] pr-4 pl-6 flex flex-row rounded-xl justify-center items-center pointer-events-auto`}
+      className={`bg-white drop-shadow-2xl border text-neutral-800 border-gray-100 gap-x-4 w-full md:w-[30rem] py-[0.8rem] pr-4 pl-6 flex flex-row rounded-xl justify-center items-center pointer-events-auto`}
     >
       <div
         className={`border-2 ${
@@ -67,4 +66,6 @@ export default function Toast({
       </div>
     </div>
   );
-}
+};
+
+export default Toast;

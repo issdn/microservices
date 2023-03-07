@@ -1,13 +1,13 @@
-import Icon, { IconPropsType } from "./Icon";
+import Icon, { IconProps } from "./Icon";
 import { ButtonStyle, ButtonStyleType } from "./styles";
 
-type IconButtonPropsType = IconPropsType & {
+type IconButtonProps = IconProps & {
   onClick?: () => void;
   type?: ButtonStyleType;
   attributes?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 };
 
-const IconButton: React.FC<IconButtonPropsType> = ({
+const IconButton: React.FC<IconButtonProps> = ({
   name,
   fill = false,
   styles = "",

@@ -1,6 +1,8 @@
-import { getPasswordStrength } from "./functions";
+import zxcvbn from "zxcvbn";
 
-export default function PasswordStrength({ value }: { value: string }) {
+export const getPasswordStrength = (password: string) => zxcvbn(password).score;
+
+const PasswordStrength: React.FC<{ value: string }> = ({ value }) => {
   const passwordStrength = getPasswordStrength(value);
   return (
     <div className="flex flex-row justify-between w-full">
@@ -29,4 +31,6 @@ export default function PasswordStrength({ value }: { value: string }) {
       </div>
     </div>
   );
-}
+};
+
+export default PasswordStrength;

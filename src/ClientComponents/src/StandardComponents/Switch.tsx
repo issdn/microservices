@@ -25,17 +25,13 @@ export const useSwitch = (options: OptionsType, startingSelected: string) => {
   };
 };
 
-type SwitchPropsType = {
+type SwitchProps = {
   options: OptionsType;
   selected: ReturnType<typeof useSwitch>["selected"];
   handleSwitch: ReturnType<typeof useSwitch>["handleSwitch"];
 };
 
-const Switch: React.FC<SwitchPropsType> = ({
-  options,
-  selected,
-  handleSwitch,
-}) => {
+const Switch: React.FC<SwitchProps> = ({ options, selected, handleSwitch }) => {
   return (
     <div className="p-1.5 bg-secondary rounded-3xl drop-shadow-md">
       <div className="flex flex-row gap-x-1 rounded-3xl shadow-neo-1">

@@ -7,14 +7,13 @@ using User.Context;
 using User.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddCors(options =>
 {
     options
     .AddDefaultPolicy(
         policy =>
         {
-            policy.WithOrigins("http://127.0.0.1:5173")
+            policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>())
                                 .AllowAnyHeader()
                                 .AllowAnyMethod();
         });

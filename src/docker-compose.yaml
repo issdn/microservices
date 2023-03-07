@@ -13,6 +13,7 @@ services:
     ports:
       - "5113:80"
     environment:
+      # - Cors__AllowedOrigins__0__=http://127.0.0.1:5173
       - ConnectionStrings__DefaultConnection=server=db;user=root;password=root;database=msc
       - JWT__Issuer=None
       - JWT__Audience=None

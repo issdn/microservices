@@ -1,10 +1,9 @@
 import { InputsObjectsType, useInputs } from "./hooks";
 import { canSubmitForm } from "./validation";
 import Button from "../Button";
-import Spinner from "../Spinner";
 import Input from "./Input";
 
-type FormPropsType = {
+type FormProps = {
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   inputsObject: InputsObjectsType;
@@ -13,7 +12,7 @@ type FormPropsType = {
   formInputs: ReturnType<typeof useInputs>;
 };
 
-const Form: React.FC<FormPropsType> = ({
+const Form: React.FC<FormProps> = ({
   onSubmit,
   isLoading,
   inputsObject,

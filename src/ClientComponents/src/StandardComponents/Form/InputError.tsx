@@ -1,13 +1,15 @@
-export type InputErrorPropsType = {
+export type InputErrorProps = {
   errors: string[];
   shouldShowErrors: boolean;
 };
 
-export default function InputError({
+const InputError: React.FC<InputErrorProps> = ({
   errors,
   shouldShowErrors,
-}: InputErrorPropsType) {
+}) => {
   if (shouldShowErrors) {
     return <p className="text-red-500 text-sm">{errors[0]}</p>;
   } else return null;
-}
+};
+
+export default InputError;

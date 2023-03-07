@@ -2,12 +2,12 @@ type SwitableContainerType = {
   [key: string]: React.ReactNode;
 };
 
-type SwitableContainerPropsType = {
+type SwitableContainerProps = {
   components: SwitableContainerType;
   currentlySelected: string;
 };
 
-const SwitchableContainer: React.FC<SwitableContainerPropsType> = ({
+const SwitchableContainer: React.FC<SwitableContainerProps> = ({
   components,
   currentlySelected,
 }) => {

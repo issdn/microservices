@@ -1,8 +1,8 @@
-import { InputObjectType, useInputs } from "./hooks";
+import { InputObjectType } from "./hooks";
 import InputError from "./InputError";
 import PasswordStrength from "./InputStrength";
 
-export type InputBasePropsType = {
+export type InputBaseProps = {
   inputObject: InputObjectType;
   setTouched: () => void;
   errors: string[];
@@ -11,14 +11,14 @@ export type InputBasePropsType = {
   shouldShowErrors: boolean;
 };
 
-export default function Input({
+const Input: React.FC<InputBaseProps> = ({
   inputObject,
   setTouched,
   errors,
   onChange,
   inputValue,
   shouldShowErrors,
-}: InputBasePropsType) {
+}) => {
   return (
     <div className="flex flex-col">
       <label className="px-2" htmlFor={inputObject.name}>
@@ -40,4 +40,6 @@ export default function Input({
       </div>
     </div>
   );
-}
+};
+
+export default Input;
