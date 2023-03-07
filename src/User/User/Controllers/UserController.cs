@@ -99,6 +99,13 @@ namespace User.Controllers
         }
 
         [Authorize]
+        [HttpGet("session")]
+        public IActionResult Session()
+        {
+            return Ok(new { title = "Session is valid" });
+        }
+
+        [Authorize]
         [HttpPost("remove-account")]
         public async Task<IActionResult> RemoveAccount(UserLoginModel userData)
         {

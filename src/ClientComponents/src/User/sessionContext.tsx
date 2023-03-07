@@ -13,12 +13,17 @@ const SessionContext = createContext<SessionContextType>({
 });
 
 const fetchSession = async () => {
-  const res = await fetch("user/auth/session", {
+  const res = await fetch("/v1/user/auth/session", {
     method: "GET",
-    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      withCredentials: "true",
+    },
   });
-
-  return res.status === 200;
+  if (res.ok) {
+    return true;
+  }
+  return false;
 };
 
 export const useSession = () => useContext(SessionContext);
@@ -28,9 +33,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [session, _setSession] = useState(false);
 
-  // useEffect(() => {
-  //   fetchSession().then((session) => _setSession(session));
-  // }, []);
+  useEffect(() => {
+    fetchSession().then((session) => _setSession(session));
+  }, []);
 
   const login = () => {
     _setSession(true);
