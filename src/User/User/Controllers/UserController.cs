@@ -129,6 +129,10 @@ namespace User.Controllers
                 return BadRequest(new { title = "Invalid password or username" });
             }
         }
+        public IActionResult Test()
+        {
+            return Ok(new { title = "Test" });
+        }
 
     }
 }

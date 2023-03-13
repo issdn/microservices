@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import { validator } from "./validation";
-import { useInputs } from "./hooks";
+import { useInputs, useFetch } from "./hooks";
 import { act, renderHook } from "@testing-library/react";
 
 const testInputsObjects = [
@@ -64,7 +64,7 @@ test("should set new values and give them back", () => {
 });
 
 test("should set touched and give it back", () => {
-  let { result, rerender } = renderHook(() => useInputs(testInputsObjects));
+  const { result, rerender } = renderHook(() => useInputs(testInputsObjects));
 
   act(() => {
     result.current.setTouched("username");
