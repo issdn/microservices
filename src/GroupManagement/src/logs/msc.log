@@ -1,0 +1,6 @@
+ERROR:root:name 'a' is not defined
+Traceback (most recent call last):
+  File "E:\microservices\src\GroupManagement\src\main.py", line 31, in create_group
+    a
+NameError: name 'a' is not defined
+
