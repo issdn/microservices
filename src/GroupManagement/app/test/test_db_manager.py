@@ -12,41 +12,40 @@ class SessionContextManagerTest(SessionContextManager):
         self.db_context.close()
 
 
-def test_insert_group():
+@pytest.fixture
+def new_group():
+    group = Group(name="test_group",
+                  token="testtesttesttesttesttesttesttest")
+    yield lambda session: session.add_group(38, group)
+
+
+def test_insert_group(new_group):
     with SessionContextManagerTest() as session:
-        group = Group(name="test_group",
-                      token="testtesttesttesttesttesttesttest")
-        group_id = session.add_group(38, group)
+        group_id = new_group(session)
         assert group_id > 0
 
 
-def test_get_group():
+def test_get_group(new_group):
     with SessionContextManagerTest() as session:
-        group = Group(name="test_group",
-                      token="testtesttesttesttesttesttesttest")
-        group_id = session.add_group(38, group)
+        group_id = new_group(session)
         assert group_id > 0
         group = session.get_group(group_id)
         assert group is not None
         assert group["name"] == "test_group"
 
 
-def test_get_groups():
+def test_get_groups(new_group):
     with SessionContextManagerTest() as session:
-        group = Group(name="test_group",
-                      token="testtesttesttesttesttesttesttest")
-        group_id = session.add_group(38, group)
+        group_id = new_group(session)
         assert group_id > 0
         groups = session.get_all_groups()
         assert groups is not None
         assert len(groups) > 0
 
 
-def test_update_group():
+def test_update_group(new_group):
     with SessionContextManagerTest() as session:
-        group = Group(name="test_group",
-                      token="testtesttesttesttesttesttesttest")
-        group_id = session.add_group(38, group)
+        group_id = new_group(session)
         assert group_id > 0
         group = Group(name="test_group_2",
                       token="testtesttesttest1111111111111111")
@@ -56,11 +55,9 @@ def test_update_group():
         assert group["name"] == "test_group_2"
 
 
-def test_delete_group():
+def test_delete_group(new_group):
     with SessionContextManagerTest() as session:
-        group = Group(name="test_group",
-                      token="testtesttesttesttesttesttesttest")
-        group_id = session.add_group(38, group)
+        group_id = new_group(session)
         session.delete_group(group_id)
         group = session.get_group(group_id)
         assert group is None
@@ -68,9 +65,6 @@ def test_delete_group():
 
 def get_groups_by_user_id():
     with SessionContextManagerTest() as session:
-        group = Group(name="test_group",
-                      token="testtesttesttesttesttesttesttest")
-        session.add_group(38, group)
         groups = session.get_groups_by_user_id(38)
         assert groups is not None
         assert len(groups) > 0
