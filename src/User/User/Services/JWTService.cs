@@ -19,7 +19,7 @@ class JWTService
     {
         var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim("Username", user.Username)
             };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtData.Key));

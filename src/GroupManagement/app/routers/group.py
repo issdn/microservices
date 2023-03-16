@@ -1,9 +1,8 @@
-import logging
-import os
 import secrets
-import traceback
+import requests
 
-from fastapi import HTTPException, APIRouter
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import APIKeyCookie
 from app.models.group import CreateGroupDTO
 
 from app.db_manager import SessionContextManager
@@ -11,90 +10,66 @@ from app.models.group import GroupDTO, Group
 
 router = APIRouter(prefix="/group/v1", tags=["Group"])
 
-logging.basicConfig(filename=os.getenv("DB_LOGGER_FILE"))
-
 
 def generate_group_url():
     return secrets.token_urlsafe(24)
 
 
-def handle_exception(e: BaseException, status_code=500, detail="Internal server error."):
-    if os.getenv("ENVIRONMENT").lower() == "production":
-        msg = getattr(e, "message", str(e))
-        logging.error(
-            msg + "\n" + "".join(traceback.format_exception(e)))
-        raise HTTPException(status_code=status_code, detail=detail)
-    else:
-        raise e
+def check_jwt_session(sessionJwtToken: str, url: str = "http://localhost:5113/user/v1/auth/session"):
+    response = requests.api.get(
+        url, cookies={"sessionJwtToken": sessionJwtToken})
+    if response.status_code != 200:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return response.json()
 
 
 @router.get("/")
 def get_groups(limit: int = 0):
-    try:
-        with SessionContextManager() as session:
-            return session.get_all_groups(limit)
-    except HTTPException as e:
-        raise e
-    except BaseException as e:
-        handle_exception(e, detail="Couldn't get groups.")
+    with SessionContextManager(detail="Couldn't get groups.") as session:
+        return session.get_all_groups(limit)
 
 
-@router.get("/{id}")
-def get_group(id: int):
-    try:
-        with SessionContextManager() as session:
-            return session.get_group(id)
-    except HTTPException as e:
-        raise e
-    except BaseException as e:
-        handle_exception(e, detail=f"Couldn't find a group with id: {id}.")
+@router.get("/{group_id}")
+def get_group(group_id: int):
+    with SessionContextManager(detail=f"Couldn't find a group with id: {id}.") as session:
+        return session.get_group(group_id)
 
 
 @router.post("/{user_id}")
-def create_group(user_id: int, group: GroupDTO):
-    try:
-        with SessionContextManager() as session:
-            token = generate_group_url()
-            id = session.add_group(user_id, Group(
-                **group.dict(), token=token))
-            return CreateGroupDTO(message="Group created successfully", id=id, token=token)
-    except HTTPException as e:
-        raise e
-    except BaseException as e:
-        handle_exception(e, detail="Couldn't create a group.")
+def create_group(user_id: int, group: GroupDTO, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
+    check_jwt_session(sessionJwtToken)
+    with SessionContextManager(detail="Couldn't create a group.") as session:
+        token = generate_group_url()
+        id = session.add_group(user_id, Group(
+            **group.dict(), token=token))
+        return CreateGroupDTO(message="Group created successfully", id=id, token=token)
 
 
-@router.delete("/{id}")
-def delete_group(id: int):
-    try:
-        with SessionContextManager() as session:
-            session.delete_group(id)
-            return {"message": "Group deleted successfully"}
-    except HTTPException as e:
-        raise e
-    except BaseException as e:
-        handle_exception(e, detail=f"Couldn't delete a group with id: {id}.")
+@router.delete("/{user_id}")
+def delete_group(user_id: int, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
+    check_jwt_session(check_jwt_session(sessionJwtToken))
+    with SessionContextManager(detail=f"Couldn't delete a group with id: {id}.") as session:
+        session.delete_group(user_id)
+        return {"message": "Group deleted successfully"}
 
 
-@router.put("/{id}")
-def update_group(id: int, group: GroupDTO):
-    try:
-        with SessionContextManager() as session:
-            session.update_group(id, group)
-            return {"message": "Group updated successfully"}
-    except HTTPException as e:
-        raise e
-    except BaseException as e:
-        handle_exception(
-            e, detail=f"Couldn't update a group with id: {group.id}.")
+@router.put("/{user_id}")
+def update_group(user_id: int, group: GroupDTO, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
+    check_jwt_session(check_jwt_session(sessionJwtToken))
+    with SessionContextManager(detail=f"Couldn't update a group with id: {group.id}.") as session:
+        session.update_group(user_id, group)
+        return {"message": "Group updated successfully"}
 
 
 @router.get("/user/{user_id}")
 def get_user_groups(user_id: int):
-    try:
-        with SessionContextManager() as session:
-            return session.get_groups_by_user_id(user_id)
-    except HTTPException as e:
-        raise e
-    except BaseException as e:
-        handle_exception(e, detail=f"Couldn't get groups by id: {id}.")
+    with SessionContextManager(detail=f"Couldn't get groups by id: {user_id}.") as session:
+        return session.get_groups_by_user_id(user_id)
+
+
+@router.post("/join/{group_token}")
+def join_group(group_token: str, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
+    response = check_jwt_session(
+        sessionJwtToken, url="http://localhost:5113/user/v1/auth/verify")
+    with SessionContextManager(detail=f"Couldn't join a group with token: {group_token}.") as session:
+        return session.join_group(group_token, response["id"])

@@ -1,3 +1,6 @@
+import logging
+import traceback
+from fastapi import HTTPException
 from pydantic import BaseModel
 import mysql.connector
 import os
@@ -7,10 +10,7 @@ class ModelException(Exception):
     pass
 
 
-class GroupManager:
-    # This class definitely doesn't have single responsibility but I'm gonna leave it like this for now.
-    # ORM is definitely much easier to work with.
-
+class GroupDatabaseManager:
     def __init__(self):
         self.cnx = mysql.connector.connect(user=os.getenv("DB_USER"),
                                            password=os.getenv("DB_PASSWORD"),
@@ -57,9 +57,21 @@ class GroupManager:
         self.cur.execute(query, tuple(to_edit_object_dict.values()))
 
     def get_groups_by_user_id(self, user_id: int):
-        query = f"SELECT * FROM msc.user_has_group WHERE user_id = {user_id};"
-        self.cur.execute(query)
+        query = f"SELECT * FROM msc.user_has_group WHERE user_id = %s;"
+        self.cur.execute(query, (user_id,))
         return self.cur.fetchall()
+
+    def join_group(self, token: str, user_id: int):
+        query = f"SELECT * FROM msc.group WHERE token = %s;"
+        self.cur.execute(query, (token,))
+        group = self.cur.fetchone()
+        check_if_user_in_group_query = f"SELECT * FROM msc.user_has_group WHERE user_id = %s AND group_id = %s;"
+        self.cur.execute(check_if_user_in_group_query, (user_id, group["id"],))
+        if self.cur.fetchone() is not None:
+            raise HTTPException(
+                status_code=400, detail="User is already in group.")
+        join_query = f"INSERT INTO msc.user_has_group (user_id, group_id) VALUES (%s, %s);"
+        self.cur.execute(join_query, (user_id, group["id"],))
 
     def _model_to_fields_and_values_string_parameters(self, model: BaseModel):
         if not issubclass(type(model), BaseModel):
@@ -79,15 +91,24 @@ class GroupManager:
 
 
 class SessionContextManager:
-    def __init__(self):
-        self.db_context = GroupManager()
+    def __init__(self, status_code=500, detail="Internal server error."):
+        self.db_context = GroupDatabaseManager()
+        self.status_code = status_code
+        self.detail = detail
 
     def __enter__(self):
         return self.db_context
 
-    def __exit__(self, type, value, traceback):
-        if type is None:
+    def __exit__(self, ex_type, ex_value, ex_traceback):
+        if ex_type is None:
             self.db_context.commit()
         else:
             self.db_context.rollback()
+            if os.getenv("ENVIRONMENT").lower() == "production":
+                logging.error(
+                    str(ex_value) + "\n" + "".join(traceback.format_tb(ex_traceback)))
+                raise HTTPException(
+                    status_code=self.status_code, detail=self.detail)
+            else:
+                raise ex_value
         self.db_context.close()

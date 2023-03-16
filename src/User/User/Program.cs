@@ -64,7 +64,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddCookie(o => o.Cookie.Name = "token")
+.AddCookie(o => o.Cookie.Name = "sessionJwtToken")
 .AddJwtBearer(o =>
 {
     o.TokenValidationParameters = new TokenValidationParameters
@@ -81,7 +81,7 @@ builder.Services.AddAuthentication(options =>
     {
         OnMessageReceived = context =>
         {
-            context.Token = context.Request.Cookies["token"];
+            context.Token = context.Request.Cookies["sessionJwtToken"];
             return Task.CompletedTask;
         }
     };

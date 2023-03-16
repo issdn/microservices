@@ -1,4 +1,4 @@
-from app.db_manager import SessionContextManager, GroupManager
+from app.db_manager import SessionContextManager
 import pytest
 from app.models.group import Group
 
@@ -63,9 +63,11 @@ def test_delete_group(new_group):
         assert group is None
 
 
-def get_groups_by_user_id():
+def test_join_group(new_group):
     with SessionContextManagerTest() as session:
-        groups = session.get_groups_by_user_id(38)
+        new_group(session)
+        session.join_group("testtesttesttesttesttesttesttest", 39)
+        groups = session.get_groups_by_user_id(39)
         assert groups is not None
         assert len(groups) > 0
 

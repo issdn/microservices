@@ -6,7 +6,7 @@ using User.Services;
 
 namespace User.Controllers
 {
-    [Route("v1/[controller]/auth")]
+    [Route("[controller]/v1/auth")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -75,8 +75,8 @@ namespace User.Controllers
                 var is_valid = PasswordService.VerifyHash(userData.Password, user.Salt!, user.Password!);
                 if (is_valid)
                 {
-                    var token = new JWTService(_jwtData).CreateJwtToken(userData);
-                    HttpContext.Response.Cookies.Append("token", token);
+                    var sessionJwtToken = new JWTService(_jwtData).CreateJwtToken(userData);
+                    HttpContext.Response.Cookies.Append("sessionJwtToken", sessionJwtToken);
                     return Ok(new { title = "Login successful" });
                 }
                 else
@@ -106,6 +106,22 @@ namespace User.Controllers
         }
 
         [Authorize]
+        [HttpGet("verify")]
+        public IActionResult Verify()
+        {
+            var claim = HttpContext.User.Claims.First(claim => claim.Type == "Username");
+            var user = _context.Users.Where(user => user.Username == claim.Value).FirstOrDefault();
+            if (user != null)
+            {
+                return Ok(new { id = user.Id, username = user.Username, email = user.Email });
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        [Authorize]
         [HttpPost("remove-account")]
         public async Task<IActionResult> RemoveAccount(UserLoginModel userData)
         {
@@ -129,10 +145,5 @@ namespace User.Controllers
                 return BadRequest(new { title = "Invalid password or username" });
             }
         }
-        public IActionResult Test()
-        {
-            return Ok(new { title = "Test" });
-        }
-
     }
 }
