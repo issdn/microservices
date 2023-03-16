@@ -2,18 +2,22 @@ import { useEffect, useState, createContext, useContext } from "react";
 
 type SessionContextType = {
   session: boolean;
+  username: string;
+  id: number;
   login: () => void;
   logout: () => void;
 };
 
 const SessionContext = createContext<SessionContextType>({
   session: false,
+  username: "",
+  id: -1,
   login: () => {},
   logout: () => {},
 });
 
-const fetchSession = async () => {
-  const res = await fetch("/v1/user/auth/session", {
+const fetchSession = async (): Promise<[string, boolean]> => {
+  const res = await fetch("/user/v1/auth/session", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -21,9 +25,10 @@ const fetchSession = async () => {
     },
   });
   if (res.ok) {
-    return true;
+    const data = await res.json();
+    return [data.username, true];
   }
-  return false;
+  return ["", false];
 };
 
 export const useSession = () => useContext(SessionContext);
@@ -32,9 +37,14 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [session, _setSession] = useState(false);
+  const [username, _setUsername] = useState("");
+  const [id, _setId] = useState(-1);
 
   useEffect(() => {
-    fetchSession().then((session) => _setSession(session));
+    fetchSession().then(([username, session]) => {
+      _setSession(session);
+      _setUsername(username);
+    });
   }, []);
 
   const login = () => {
@@ -46,13 +56,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <SessionContext.Provider value={{ session, login, logout }}>
+    <SessionContext.Provider value={{ id, username, session, login, logout }}>
       {children}
     </SessionContext.Provider>
   );
 };
 
-export const SecureRoute: React.FC<{ children: React.ReactNode }> = ({
+export const SecureComponent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { session } = useSession();

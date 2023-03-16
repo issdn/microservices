@@ -1,11 +1,11 @@
+import Form from "../../StandardComponents/Form/Form";
 import {
   InputsObjectsType,
   useInputs,
-  useFetch,
 } from "../../StandardComponents/Form/hooks";
 import { validator } from "../../StandardComponents/Form/validation";
-import Form from "../../StandardComponents/Form/Form";
-import { useToastContext } from "../../StandardComponents/Toast/toastContext";
+import { useToast } from "../../StandardComponents/Toast/toastContext";
+import { useFetch } from "../../StandardComponents/fetch";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -36,7 +36,21 @@ const inputsObject: InputsObjectsType = [
 ];
 
 const Registration: React.FC = () => {
-  const { isLoading, sendRequest } = useFetch(useToastContext().addToast);
+  const { addToast } = useToast();
+
+  const responseHandler = {
+    201: () => {
+      addToast({ title: "Registered successfully", type: "success" });
+    },
+    400: () => addToast({ title: "Couldn't register.", type: "error" }),
+    default: () =>
+      addToast({
+        title: "Login failed because of an unknown error.",
+        type: "error",
+      }),
+  };
+
+  const { loading, sendRequest } = useFetch(responseHandler);
   const formInputs = useInputs(inputsObject);
 
   const onSubmit = async () => {
@@ -52,7 +66,7 @@ const Registration: React.FC = () => {
   return (
     <Form
       inputsObject={inputsObject}
-      isLoading={isLoading}
+      isLoading={loading}
       onSubmit={onSubmit}
       heading="Registration"
       buttonText="Register"

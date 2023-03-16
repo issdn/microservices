@@ -1,8 +1,12 @@
 import Button from "../../StandardComponents/Button";
-import { useFetch } from "../../StandardComponents/Form/hooks";
+import Layout from "../../StandardComponents/Layout";
 import Switch, { useSwitch } from "../../StandardComponents/Switch";
 import SwitchableContainer from "../../StandardComponents/SwitchableContainer";
-import { useToastContext } from "../../StandardComponents/Toast/toastContext";
+import {
+  useToast,
+  useToastContext,
+} from "../../StandardComponents/Toast/toastContext";
+import { useFetch } from "../../StandardComponents/fetch";
 import { useSession } from "../sessionContext";
 import Login from "./Login";
 import Registration from "./Registration";
@@ -29,10 +33,24 @@ const components = {
 
 const UserLayout: React.FC = () => {
   const session = useSession();
+  const { addToast } = useToast();
+  const responseHandler = {
+    200: () => {
+      addToast({ title: "Logged out successfully", type: "success" });
+      session.logout();
+    },
+    400: () => addToast({ title: "Couldn't log out.", type: "error" }),
+    default: () =>
+      addToast({
+        title: "Login failed because of an unknown error.",
+        type: "error",
+      }),
+  };
+
   const { selected, handleSwitch } = useSwitch(options, "Registration");
-  const { isLoading, sendRequest } = useFetch(useToastContext().addToast);
+  const { loading, sendRequest } = useFetch(responseHandler);
   return (
-    <div className="h-full w-full flex flex-col gap-y-4 justify-center items-center text-secondary">
+    <Layout>
       {!session.session ? (
         <>
           <Switch
@@ -50,24 +68,20 @@ const UserLayout: React.FC = () => {
           <p className="text-neutral-800">You're now logged in!</p>
           <Button
             onClick={() => {
-              sendRequest(
-                "/v1/user/auth/logout",
-                {
-                  method: "POST",
-                  headers: {
-                    withCredentials: "true",
-                  },
+              sendRequest("/user/v1/auth/logout", {
+                method: "POST",
+                headers: {
+                  withCredentials: "true",
                 },
-                session.logout
-              );
+              });
             }}
-            isLoading={isLoading}
+            loading={loading}
           >
             Logout
           </Button>
         </div>
       )}
-    </div>
+    </Layout>
   );
 };
 

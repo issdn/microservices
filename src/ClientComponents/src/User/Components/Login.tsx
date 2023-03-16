@@ -1,12 +1,12 @@
 import {
   InputsObjectsType,
   useInputs,
-  useFetch,
 } from "../../StandardComponents/Form/hooks";
 import { validator } from "../../StandardComponents/Form/validation";
 import Form from "../../StandardComponents/Form/Form";
-import { useToastContext } from "../../StandardComponents/Toast/toastContext";
 import { useSession } from "../sessionContext";
+import { useFetch } from "../../StandardComponents/fetch";
+import { useToast } from "../../StandardComponents/Toast/toastContext";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -31,27 +31,39 @@ const inputsObject: InputsObjectsType = [
 
 const Login = () => {
   const session = useSession();
-  const { isLoading, sendRequest } = useFetch(useToastContext().addToast);
+  const { addToast } = useToast();
+
+  const responseHandler = {
+    200: () => {
+      addToast({ title: "Login successful.", type: "success" });
+      session.login();
+    },
+    400: () =>
+      addToast({ title: "Invalid password or username.", type: "error" }),
+    default: () =>
+      addToast({
+        title: "Login failed because of an unknown error.",
+        type: "error",
+      }),
+  };
+
+  const { loading, sendRequest } = useFetch(responseHandler);
   const formInputs = useInputs(inputsObject);
 
   const onSubmit = async () => {
-    sendRequest(
-      "/v1/user/auth/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formInputs.inputsValues),
+    sendRequest("/user/v1/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      session.login
-    );
+      body: JSON.stringify(formInputs.inputsValues),
+    });
   };
 
   return (
     <Form
       inputsObject={inputsObject}
-      isLoading={isLoading}
+      isLoading={loading}
       onSubmit={onSubmit}
       heading="Login"
       buttonText="Login"

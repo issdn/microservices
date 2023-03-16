@@ -7,8 +7,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/v1": {
-        target: "http://localhost:5113",
+      "/user": {
+        target: "http://127.0.0.1:5113",
+        changeOrigin: false,
+        secure: true,
+      },
+      "/group": {
+        target: "http://127.0.0.1:8000",
         changeOrigin: false,
         secure: true,
       },

@@ -5,8 +5,8 @@ export const getPasswordStrength = (password: string) => zxcvbn(password).score;
 const PasswordStrength: React.FC<{ value: string }> = ({ value }) => {
   const passwordStrength = getPasswordStrength(value);
   return (
-    <div className="flex flex-row justify-between w-full">
-      <p className="text-[.85rem] whitespace-nowrap">Password strength:</p>
+    <div className="flex flex-row justify-between w-full gap-x-8">
+      <p className="text-[.85rem] whitespace-nowrap ">Password strength:</p>
       <div className="flex flex-row gap-x-2 items-center">
         <div
           className={`w-8 md:w-12 h-1.5 ${

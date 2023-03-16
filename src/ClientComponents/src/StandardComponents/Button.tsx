@@ -2,8 +2,8 @@ import Spinner from "./Spinner";
 
 type ButtonProps = {
   children: React.ReactNode;
-  onClick: () => void;
-  isLoading: boolean;
+  onClick?: () => void;
+  loading: boolean;
   attributes?: React.ButtonHTMLAttributes<HTMLButtonElement>;
 };
 
@@ -11,7 +11,7 @@ const Button: React.FC<ButtonProps> = ({
   children,
   onClick,
   attributes,
-  isLoading,
+  loading,
 }) => {
   const createRipple = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const button = e.currentTarget;
@@ -41,14 +41,16 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       {...attributes}
-      disabled={isLoading}
+      disabled={loading}
       onClick={(e) => {
         createRipple(e);
-        onClick();
+        if (onClick) {
+          onClick();
+        }
       }}
       className="w-full disabled:bg-violet-500 relative py-2 overflow-hidden rounded-xl flex flex-row justify-center bg-violet-600 text-secondary text-xl drop-shadow-lg"
     >
-      {isLoading ? <Spinner /> : children}
+      {loading ? <Spinner /> : children}
     </button>
   );
 };

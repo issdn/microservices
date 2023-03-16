@@ -94,20 +94,13 @@ namespace User.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            HttpContext.Response.Cookies.Delete("token");
+            HttpContext.Response.Cookies.Delete("sessionJwtToken");
             return Ok(new { title = "Logout successful" });
         }
 
         [Authorize]
         [HttpGet("session")]
         public IActionResult Session()
-        {
-            return Ok(new { title = "Session is valid" });
-        }
-
-        [Authorize]
-        [HttpGet("verify")]
-        public IActionResult Verify()
         {
             var claim = HttpContext.User.Claims.First(claim => claim.Type == "Username");
             var user = _context.Users.Where(user => user.Username == claim.Value).FirstOrDefault();

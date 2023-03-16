@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ToastType } from "./ToastContainer";
 
-export type ToastColorType = "warning" | "success";
+export type ToastColorType = "error" | "success";
 
 const randomToken = () => {
   return Math.random().toString(12);

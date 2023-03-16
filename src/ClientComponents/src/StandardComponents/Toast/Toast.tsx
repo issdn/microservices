@@ -10,7 +10,7 @@ const toastStyleTypes = {
     color: "text-green-600",
     border: "border-green-600",
   },
-  warning: { icon: "close", color: "text-rose-600", border: "border-rose-600" },
+  error: { icon: "close", color: "text-rose-600", border: "border-rose-600" },
 };
 
 type ToastProps = {

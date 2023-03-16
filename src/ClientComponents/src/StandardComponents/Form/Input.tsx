@@ -1,6 +1,6 @@
 import { InputObjectType } from "./hooks";
 import InputError from "./InputError";
-import PasswordStrength from "./InputStrength";
+import PasswordStrength from "./PasswordStrength";
 
 export type InputBaseProps = {
   inputObject: InputObjectType;

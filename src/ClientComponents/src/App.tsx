@@ -1,3 +1,4 @@
+import GroupsLayout from "./Groups/GroupsLayout";
 import ToastContainer from "./StandardComponents/Toast/ToastContainer";
 import {
   ToastProvider,
@@ -11,7 +12,10 @@ const App = () => {
   return (
     <ToastProvider addToast={addToast}>
       <SessionProvider>
-        <UserLayout />
+        <div className="flex flex-col h-full items-center justify-center">
+          <GroupsLayout />
+          <UserLayout />
+        </div>
       </SessionProvider>
       <ToastContainer toasts={toasts} deleteToast={deleteToast} />
     </ToastProvider>

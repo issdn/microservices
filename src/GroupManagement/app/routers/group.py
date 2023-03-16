@@ -1,7 +1,7 @@
 import secrets
 import requests
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.security import APIKeyCookie
 from app.models.group import CreateGroupDTO
 
@@ -69,7 +69,6 @@ def get_user_groups(user_id: int):
 
 @router.post("/join/{group_token}")
 def join_group(group_token: str, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
-    response = check_jwt_session(
-        sessionJwtToken, url="http://localhost:5113/user/v1/auth/verify")
+    response = check_jwt_session(sessionJwtToken)
     with SessionContextManager(detail=f"Couldn't join a group with token: {group_token}.") as session:
         return session.join_group(group_token, response["id"])
