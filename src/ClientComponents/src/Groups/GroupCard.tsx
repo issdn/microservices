@@ -2,6 +2,8 @@ import { useState } from "react";
 import Tooltip from "./Tooltip";
 import { GroupType } from "./types";
 import IconButton from "../StandardComponents/IconButton";
+import { useFetch } from "../StandardComponents/fetch";
+import { useToastContext } from "../StandardComponents/Toast/toastContext";
 
 type GroupCardProps = {
   group: GroupType;
@@ -11,6 +13,32 @@ type GroupCardProps = {
 const GroupCard: React.FC<GroupCardProps> = ({ group, color }) => {
   const [visible, setVisible] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
+  const { addToast } = useToastContext();
+  const responseHandlers = {
+    200: (response: any) => {
+      addToast({ title: "Deleted successfully!", type: "success" });
+    },
+    400: (response: any) => {
+      addToast({
+        title: "Error",
+        type: "error",
+      });
+    },
+    500: (response: any) => {
+      addToast({
+        title: "Error",
+        type: "error",
+      });
+    },
+    default: (response: any) => {
+      addToast({
+        title: "Error",
+        type: "error",
+      });
+    },
+  };
+
+  const { post } = useFetch();
 
   return (
     <div className="flex flex-col gap-y-4 p-4 items-center">

@@ -6,7 +6,7 @@ import { validator } from "../../StandardComponents/Form/validation";
 import Form from "../../StandardComponents/Form/Form";
 import { useSession } from "../sessionContext";
 import { useFetch } from "../../StandardComponents/fetch";
-import { useToast } from "../../StandardComponents/Toast/toastContext";
+import { useToastContext } from "../../StandardComponents/Toast/toastContext";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -31,9 +31,9 @@ const inputsObject: InputsObjectsType = [
 
 const Login = () => {
   const session = useSession();
-  const { addToast } = useToast();
+  const { addToast } = useToastContext();
 
-  const responseHandler = {
+  const responseHandlers = {
     200: () => {
       addToast({ title: "Login successful.", type: "success" });
       session.login();
@@ -47,17 +47,15 @@ const Login = () => {
       }),
   };
 
-  const { loading, sendRequest } = useFetch(responseHandler);
+  const { loading, post } = useFetch();
   const formInputs = useInputs(inputsObject);
 
   const onSubmit = async () => {
-    sendRequest("/user/v1/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formInputs.inputsValues),
-    });
+    await post(
+      "/user/v1/auth/login",
+      responseHandlers,
+      formInputs.inputsValues
+    );
   };
 
   return (

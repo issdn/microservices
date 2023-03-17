@@ -4,7 +4,7 @@ import {
   useInputs,
 } from "../../StandardComponents/Form/hooks";
 import { validator } from "../../StandardComponents/Form/validation";
-import { useToast } from "../../StandardComponents/Toast/toastContext";
+import { useToastContext } from "../../StandardComponents/Toast/toastContext";
 import { useFetch } from "../../StandardComponents/fetch";
 
 const inputsObject: InputsObjectsType = [
@@ -38,9 +38,9 @@ const inputsObject: InputsObjectsType = [
 const Registration: React.FC = () => {
   const formInputs = useInputs(inputsObject);
 
-  const { addToast } = useToast();
+  const { addToast } = useToastContext();
 
-  const responseHandler = {
+  const responseHandlers = {
     201: () => {
       addToast({ title: "Registered successfully", type: "success" });
       formInputs.clearInputs();
@@ -53,16 +53,14 @@ const Registration: React.FC = () => {
       }),
   };
 
-  const { loading, sendRequest } = useFetch(responseHandler);
+  const { loading, post } = useFetch();
 
   const onSubmit = async () => {
-    await sendRequest("user/v1/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formInputs.inputsValues),
-    });
+    await post(
+      "user/v1/auth/register",
+      responseHandlers,
+      formInputs.inputsValues
+    );
   };
 
   return (

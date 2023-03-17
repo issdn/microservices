@@ -33,15 +33,28 @@ export type Status = keyof typeof statuses;
 
 type ResponseHandlerFunction<T> = (response: T) => void;
 
+type BodyType = RequestInit["body"] | {};
+
 type ResponseHandlers<T> = {
   [key in Status]?: ResponseHandlerFunction<T>;
 } & { default: ResponseHandlerFunction<T> };
 
-export const useFetch = <T>(responseHandlers: ResponseHandlers<T>) => {
+export const useFetch = () => {
   const [loading, setLoading] = useState(false);
-  const sendRequest = async (url: string, options: RequestInit = {}) => {
+  const _sendRequest = async <T>(
+    url: string,
+    responseHandlers: ResponseHandlers<T>,
+    options: RequestInit = {}
+  ) => {
     setLoading(true);
-    const response = await fetch(url, options);
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        ...options.headers,
+        withCredentials: "true",
+        "Content-Type": "application/json",
+      },
+    });
     setLoading(false);
     const status = response.status as Status;
     const res = await response.json();
@@ -51,5 +64,56 @@ export const useFetch = <T>(responseHandlers: ResponseHandlers<T>) => {
       responseHandlers.default(res);
     }
   };
-  return { loading, sendRequest };
+
+  const get = async <T>(
+    url: string,
+    responseHandlers: ResponseHandlers<T>,
+    options: RequestInit = {}
+  ) => {
+    await _sendRequest(url, responseHandlers, {
+      method: "GET",
+      ...options,
+    });
+  };
+
+  const del = async <T>(
+    url: string,
+    responseHandlers: ResponseHandlers<T>,
+    body: BodyType = {},
+    options: RequestInit = {}
+  ) => {
+    await _sendRequest(url, responseHandlers, {
+      method: "DELETE",
+      body: JSON.stringify(body),
+      ...options,
+    });
+  };
+
+  const post = async <T>(
+    url: string,
+    responseHandlers: ResponseHandlers<T>,
+    body: BodyType = {},
+    options: RequestInit = {}
+  ) => {
+    await _sendRequest(url, responseHandlers, {
+      method: "POST",
+      body: JSON.stringify(body),
+      ...options,
+    });
+  };
+
+  const put = async <T>(
+    url: string,
+    responseHandlers: ResponseHandlers<T>,
+    body: BodyType = {},
+    options: RequestInit = {}
+  ) => {
+    await _sendRequest(url, responseHandlers, {
+      method: "PUT",
+      body: JSON.stringify(body),
+      ...options,
+    });
+  };
+
+  return { loading, get, del, post, put };
 };

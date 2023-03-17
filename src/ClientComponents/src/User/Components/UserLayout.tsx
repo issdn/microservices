@@ -2,10 +2,7 @@ import Button from "../../StandardComponents/Button";
 import Layout from "../../StandardComponents/Layout";
 import Switch, { useSwitch } from "../../StandardComponents/Switch";
 import SwitchableContainer from "../../StandardComponents/SwitchableContainer";
-import {
-  useToast,
-  useToastContext,
-} from "../../StandardComponents/Toast/toastContext";
+import { useToastContext } from "../../StandardComponents/Toast/toastContext";
 import { useFetch } from "../../StandardComponents/fetch";
 import { useSession } from "../sessionContext";
 import Login from "./Login";
@@ -33,8 +30,8 @@ const components = {
 
 const UserLayout: React.FC = () => {
   const session = useSession();
-  const { addToast } = useToast();
-  const responseHandler = {
+  const { addToast } = useToastContext();
+  const responseHandlers = {
     200: () => {
       addToast({ title: "Logged out successfully", type: "success" });
       session.logout();
@@ -48,7 +45,7 @@ const UserLayout: React.FC = () => {
   };
 
   const { selected, handleSwitch } = useSwitch(options, "Registration");
-  const { loading, sendRequest } = useFetch(responseHandler);
+  const { loading, post } = useFetch();
   return (
     <Layout>
       {!session.session ? (
@@ -67,13 +64,8 @@ const UserLayout: React.FC = () => {
         <div className="flex flex-col gap-y-2 text-secondary">
           <p className="text-neutral-800">You're now logged in!</p>
           <Button
-            onClick={() => {
-              sendRequest("/user/v1/auth/logout", {
-                method: "POST",
-                headers: {
-                  withCredentials: "true",
-                },
-              });
+            onClick={async () => {
+              await post("/user/v1/auth/logout", responseHandlers);
             }}
             loading={loading}
           >

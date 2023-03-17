@@ -1,9 +1,7 @@
 import GroupsLayout from "./Groups/GroupsLayout";
 import ToastContainer from "./StandardComponents/Toast/ToastContainer";
-import {
-  ToastProvider,
-  useToast,
-} from "./StandardComponents/Toast/toastContext";
+import { useToast } from "./StandardComponents/Toast/hooks";
+import { ToastProvider } from "./StandardComponents/Toast/toastContext";
 import UserLayout from "./User/Components/UserLayout";
 import { SessionProvider } from "./User/sessionContext";
 

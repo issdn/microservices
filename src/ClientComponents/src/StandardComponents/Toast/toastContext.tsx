@@ -25,4 +25,3 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
     </ToastContext.Provider>
   );
 };
-export { useToast };
