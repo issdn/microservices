@@ -1,4 +1,10 @@
-import { useEffect, useState, createContext, useContext } from "react";
+import {
+  useEffect,
+  useState,
+  createContext,
+  useContext,
+  useCallback,
+} from "react";
 
 type SessionContextType = {
   session: boolean;
@@ -6,6 +12,7 @@ type SessionContextType = {
   id: number;
   login: () => void;
   logout: () => void;
+  verifySession: () => void;
 };
 
 const SessionContext = createContext<SessionContextType>({
@@ -14,9 +21,14 @@ const SessionContext = createContext<SessionContextType>({
   id: -1,
   login: () => {},
   logout: () => {},
+  verifySession: () => {},
 });
 
-const fetchSession = async (): Promise<[string, boolean]> => {
+const fetchSession = async (): Promise<{
+  id: number;
+  username: string;
+  session: boolean;
+}> => {
   const res = await fetch("/user/v1/auth/session", {
     method: "GET",
     headers: {
@@ -26,9 +38,9 @@ const fetchSession = async (): Promise<[string, boolean]> => {
   });
   if (res.ok) {
     const data = await res.json();
-    return [data.username, true];
+    return { id: data.id, username: data.username, session: true };
   }
-  return ["", false];
+  return { id: -1, username: "", session: false };
 };
 
 export const useSession = () => useContext(SessionContext);
@@ -40,10 +52,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [username, _setUsername] = useState("");
   const [id, _setId] = useState(-1);
 
-  useEffect(() => {
-    fetchSession().then(([username, session]) => {
+  const verifySession = useCallback(() => {
+    fetchSession().then(({ id, username, session }) => {
       _setSession(session);
       _setUsername(username);
+      _setId(id);
     });
   }, []);
 
@@ -56,7 +69,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <SessionContext.Provider value={{ id, username, session, login, logout }}>
+    <SessionContext.Provider
+      value={{ id, username, session, login, logout, verifySession }}
+    >
       {children}
     </SessionContext.Provider>
   );
@@ -65,7 +80,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
 export const SecureComponent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { session } = useSession();
-
+  const { session, verifySession } = useSession();
+  useEffect(() => {
+    verifySession();
+  });
   return session ? <>{children}</> : null;
 };

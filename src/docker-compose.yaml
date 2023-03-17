@@ -9,7 +9,7 @@ services:
   user:
     depends_on:
       - db
-    build: /user
+    build: /User
     ports:
       - "5113:80"
     environment:
@@ -18,3 +18,12 @@ services:
       - JWT__Issuer=None
       - JWT__Audience=None
       - JWT__Key=LJI+iKUWnHq2aW8nUUxiqTzXPEY96hRGvCrBpA5dyX4gNJfrbZplbjXAVq1Jh6udXvtD4bRoAWd7CQL2ar2dQA==
+  groups:
+    depends_on:
+      - db
+    build: /groupmanagement
+    ports:
+      - "5115:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306

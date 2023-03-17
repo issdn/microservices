@@ -36,11 +36,14 @@ const inputsObject: InputsObjectsType = [
 ];
 
 const Registration: React.FC = () => {
+  const formInputs = useInputs(inputsObject);
+
   const { addToast } = useToast();
 
   const responseHandler = {
     201: () => {
       addToast({ title: "Registered successfully", type: "success" });
+      formInputs.clearInputs();
     },
     400: () => addToast({ title: "Couldn't register.", type: "error" }),
     default: () =>
@@ -51,10 +54,9 @@ const Registration: React.FC = () => {
   };
 
   const { loading, sendRequest } = useFetch(responseHandler);
-  const formInputs = useInputs(inputsObject);
 
   const onSubmit = async () => {
-    await sendRequest("user/auth/register", {
+    await sendRequest("user/v1/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -16,7 +16,7 @@ class SessionContextManagerTest(SessionContextManager):
 def new_group():
     group = Group(name="test_group",
                   token="testtesttesttesttesttesttesttest")
-    yield lambda session: session.add_group(38, group)
+    yield lambda session: session.add_group(1, group)
 
 
 def test_insert_group(new_group):
@@ -66,8 +66,8 @@ def test_delete_group(new_group):
 def test_join_group(new_group):
     with SessionContextManagerTest() as session:
         new_group(session)
-        session.join_group("testtesttesttesttesttesttesttest", 39)
-        groups = session.get_groups_by_user_id(39)
+        session.join_group("testtesttesttesttesttesttesttest", 2)
+        groups = session.get_groups_by_user_id(2)
         assert groups is not None
         assert len(groups) > 0
 

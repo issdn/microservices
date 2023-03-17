@@ -64,7 +64,7 @@ const UserLayout: React.FC = () => {
           />
         </>
       ) : (
-        <div className="flex flex-col gap-y-2">
+        <div className="flex flex-col gap-y-2 text-secondary">
           <p className="text-neutral-800">You're now logged in!</p>
           <Button
             onClick={() => {

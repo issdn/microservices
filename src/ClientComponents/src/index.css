@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities{
+  .arrow{
+    position: absolute;
+    content: "";
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-right: 6px solid rgb(23, 23, 23);
+    border-bottom: 5px solid transparent;
+    top: 50%;
+    right: 100%;
+    transform: translate(0, -50%);
+  }
+}
+
 html, body, #root {
   height: 100%;
   background-color: #eeebf0;

@@ -4,7 +4,7 @@ type LayoutProps = {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="w-full flex flex-col gap-y-4 justify-center items-center text-secondary">
+    <div className="w-full flex flex-col gap-y-4 justify-center items-center">
       {children}
     </div>
   );

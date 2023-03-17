@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { ValidatorType } from "./validation";
-import { ToastType } from "../Toast/ToastContainer";
-import { useToastContext } from "../Toast/toastContext";
 
 export type InputObjectType = {
   name: string;
@@ -12,14 +10,6 @@ export type InputObjectType = {
 };
 
 export type InputsObjectsType = InputObjectType[];
-
-type ErrorResponseType = {
-  title: string;
-  status: number;
-  errors: {
-    [key: string]: string[];
-  };
-};
 
 export const useInputs = (inputsObjects: InputsObjectsType) => {
   const [inputsValues, setInputsValues] = useState(
@@ -71,6 +61,17 @@ export const useInputs = (inputsObjects: InputsObjectsType) => {
 
   const getInputValue = (name: keyof typeof inputsValues) => inputsValues[name];
 
+  const clearInputs = () => {
+    setInputsValues(
+      Object.fromEntries(
+        Object.values(inputsObjects).map((inputObject) => [
+          inputObject.name,
+          "",
+        ])
+      )
+    );
+  };
+
   return {
     errors: _errors,
     setErrors,
@@ -80,5 +81,6 @@ export const useInputs = (inputsObjects: InputsObjectsType) => {
     getInputValue,
     setInputValue,
     setAllTouched,
+    clearInputs,
   };
 };

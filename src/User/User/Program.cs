@@ -53,10 +53,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<MscDbContext>(dbContextOptions =>
     dbContextOptions
-        .UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32)))
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors());
+        .UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32))));
 
 builder.Services.AddAuthentication(options =>
 {

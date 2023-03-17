@@ -15,7 +15,8 @@ class GroupDatabaseManager:
         self.cnx = mysql.connector.connect(user=os.getenv("DB_USER"),
                                            password=os.getenv("DB_PASSWORD"),
                                            host=os.getenv("DB_HOST"),
-                                           database=os.getenv("DB_NAME"))
+                                           database=os.getenv("DB_NAME"),
+                                           port=os.getenv("DB_PORT"))
         self.cur = self.cnx.cursor(dictionary=True)
 
     def add_group(self, user_id: int,  to_insert_object: BaseModel):
@@ -57,20 +58,20 @@ class GroupDatabaseManager:
         self.cur.execute(query, tuple(to_edit_object_dict.values()))
 
     def get_groups_by_user_id(self, user_id: int):
-        query = f"SELECT * FROM msc.user_has_group WHERE user_id = %s;"
+        query = "SELECT msc.group.* FROM msc.user_has_group JOIN msc.group ON msc.user_has_group.group_id=msc.group.id WHERE user_id=%s;"
         self.cur.execute(query, (user_id,))
         return self.cur.fetchall()
 
     def join_group(self, token: str, user_id: int):
-        query = f"SELECT * FROM msc.group WHERE token = %s;"
+        query = "SELECT * FROM msc.group WHERE token = %s;"
         self.cur.execute(query, (token,))
         group = self.cur.fetchone()
-        check_if_user_in_group_query = f"SELECT * FROM msc.user_has_group WHERE user_id = %s AND group_id = %s;"
+        check_if_user_in_group_query = "SELECT * FROM msc.user_has_group WHERE user_id = %s AND group_id = %s;"
         self.cur.execute(check_if_user_in_group_query, (user_id, group["id"],))
         if self.cur.fetchone() is not None:
             raise HTTPException(
                 status_code=400, detail="User is already in group.")
-        join_query = f"INSERT INTO msc.user_has_group (user_id, group_id) VALUES (%s, %s);"
+        join_query = "INSERT INTO msc.user_has_group (user_id, group_id) VALUES (%s, %s);"
         self.cur.execute(join_query, (user_id, group["id"],))
 
     def _model_to_fields_and_values_string_parameters(self, model: BaseModel):

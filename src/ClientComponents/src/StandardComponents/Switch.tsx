@@ -33,7 +33,7 @@ type SwitchProps = {
 
 const Switch: React.FC<SwitchProps> = ({ options, selected, handleSwitch }) => {
   return (
-    <div className="p-1.5 bg-secondary rounded-3xl drop-shadow-md">
+    <div className="p-1.5 bg-secondary rounded-3xl drop-shadow-md text-secondary">
       <div className="flex flex-row gap-x-1 rounded-3xl shadow-neo-1">
         {Object.values(options).map((option) => (
           <button

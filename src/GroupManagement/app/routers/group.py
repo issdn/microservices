@@ -1,3 +1,4 @@
+import os
 import secrets
 import requests
 
@@ -8,6 +9,9 @@ from app.models.group import CreateGroupDTO
 from app.db_manager import SessionContextManager
 from app.models.group import GroupDTO, Group
 
+from dotenv import load_dotenv
+load_dotenv()
+
 router = APIRouter(prefix="/group/v1", tags=["Group"])
 
 
@@ -15,7 +19,7 @@ def generate_group_url():
     return secrets.token_urlsafe(24)
 
 
-def check_jwt_session(sessionJwtToken: str, url: str = "http://localhost:5113/user/v1/auth/session"):
+def check_jwt_session(sessionJwtToken: str, url: str = os.getenv("USER_MSC_URL") + "/user/v1/auth/session"):
     response = requests.api.get(
         url, cookies={"sessionJwtToken": sessionJwtToken})
     if response.status_code != 200:

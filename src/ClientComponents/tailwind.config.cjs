@@ -19,9 +19,21 @@ module.exports = {
             opacity: 0,
           },
         },
+        slide: {
+          "0%": {
+            transform: "translateY(-100%)",
+          },
+          "100%": {
+            transform: "translateY(0)",
+          },
+        },
       },
       animation: {
         ripple: "ripple 800ms linear",
+        slide: "slide 800ms ease-in-out",
+      },
+      fonts: {
+        mono: ["Space Mono", "monospace"],
       },
     },
   },
