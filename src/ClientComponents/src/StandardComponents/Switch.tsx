@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 type OptionsType = {
-  [key: string]: { label: string; onClick: () => void };
+  [key: string]: { label: string };
 };
 
 export const useSwitch = (options: OptionsType, startingSelected: string) => {

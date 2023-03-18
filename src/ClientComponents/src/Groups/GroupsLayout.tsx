@@ -16,16 +16,11 @@ const GroupsLayout: React.FC<GroupsLayoutProps> = () => {
   const [groups, setGroups] = useState<GroupType[]>([]);
   const responseHandlers = {
     200: (response: []) => {
-      addToast({ title: "Login successful.", type: "success" });
       setGroups(response);
     },
-    400: () =>
-      addToast({ title: "Invalid password or username.", type: "error" }),
+    400: () => addToast({ title: "You're not authenticated.", type: "error" }),
     default: () =>
-      addToast({
-        title: "Login failed because of an unknown error.",
-        type: "error",
-      }),
+      addToast({ title: "Couldn't get your groups.", type: "error" }),
   };
 
   const { loading, get } = useFetch();

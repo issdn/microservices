@@ -19,12 +19,12 @@ def generate_group_url():
     return secrets.token_urlsafe(24)
 
 
-def check_jwt_session(sessionJwtToken: str, url: str = os.getenv("USER_MSC_URL") + "/user/v1/auth/session"):
+def check_jwt_session(sessionJwtToken: str, url: str = os.getenv("USER_MSC_URL") + "/user/v1/auth/session") -> int:
     response = requests.api.get(
         url, cookies={"sessionJwtToken": sessionJwtToken})
     if response.status_code != 200:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    return response.json()
+    return response.json()["id"]
 
 
 @router.get("/")
@@ -51,7 +51,7 @@ def create_group(user_id: int, group: GroupDTO, sessionJwtToken: str = Depends(A
 
 @router.delete("/{user_id}")
 def delete_group(user_id: int, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
-    check_jwt_session(check_jwt_session(sessionJwtToken))
+    check_jwt_session(sessionJwtToken)
     with SessionContextManager(detail=f"Couldn't delete a group with id: {id}.") as session:
         session.delete_group(user_id)
         return {"message": "Group deleted successfully"}
@@ -59,7 +59,7 @@ def delete_group(user_id: int, sessionJwtToken: str = Depends(APIKeyCookie(name=
 
 @router.put("/{user_id}")
 def update_group(user_id: int, group: GroupDTO, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
-    check_jwt_session(check_jwt_session(sessionJwtToken))
+    check_jwt_session(sessionJwtToken)
     with SessionContextManager(detail=f"Couldn't update a group with id: {group.id}.") as session:
         session.update_group(user_id, group)
         return {"message": "Group updated successfully"}
@@ -73,6 +73,14 @@ def get_user_groups(user_id: int):
 
 @router.post("/join/{group_token}")
 def join_group(group_token: str, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
-    response = check_jwt_session(sessionJwtToken)
+    user_id = check_jwt_session(sessionJwtToken)
     with SessionContextManager(detail=f"Couldn't join a group with token: {group_token}.") as session:
-        return session.join_group(group_token, response["id"])
+        return session.join_group(group_token, user_id)
+
+
+@router.delete("/leave/{group_id}")
+def leave_group(group_id: int, sessionJwtToken: str = Depends(APIKeyCookie(name="token"))):
+    user_id = check_jwt_session(sessionJwtToken)
+    with SessionContextManager(detail=f"Couldn't leave a group with id: {group_id}.") as session:
+        session.leave_group(group_id, user_id)
+        return {"message": "Left group successfully"}

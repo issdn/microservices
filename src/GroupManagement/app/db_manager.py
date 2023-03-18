@@ -74,6 +74,15 @@ class GroupDatabaseManager:
         join_query = "INSERT INTO msc.user_has_group (user_id, group_id) VALUES (%s, %s);"
         self.cur.execute(join_query, (user_id, group["id"],))
 
+    def leave_group(self, user_id: int, group_id: int):
+        check_if_user_is_owner_query = "SELECT * FROM msc.group WHERE id = %s AND owner_id = %s;"
+        self.cur.execute(check_if_user_is_owner_query, (group_id, user_id,))
+        if self.cur.fetchone() is not None:
+            raise HTTPException(
+                status_code=400, detail="User is the owner of the group.")
+        query = "DELETE FROM msc.user_has_group WHERE user_id = %s AND group_id = %s;"
+        self.cur.execute(query, (user_id, group_id,))
+
     def _model_to_fields_and_values_string_parameters(self, model: BaseModel):
         if not issubclass(type(model), BaseModel):
             raise ModelException(

@@ -1,6 +1,7 @@
 export type GroupType = {
-  id: string;
+  id: number;
   name: string;
   token: string;
   avatar_url: string;
+  owner_id: number;
 };

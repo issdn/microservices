@@ -11,15 +11,9 @@ import Registration from "./Registration";
 const options = {
   Registration: {
     label: "Registration",
-    onClick: () => {
-      console.log("Registration");
-    },
   },
   Login: {
     label: "Login",
-    onClick: () => {
-      console.log("Login");
-    },
   },
 };
 
