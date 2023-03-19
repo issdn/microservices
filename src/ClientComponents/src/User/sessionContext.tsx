@@ -23,25 +23,6 @@ const SessionContext = createContext<SessionContextType>({
   canRender: false,
 });
 
-const fetchSession = async (): Promise<{
-  id: number;
-  username: string;
-  session: boolean;
-}> => {
-  const res = await fetch("/user/v1/auth/session", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      withCredentials: "true",
-    },
-  });
-  if (res.ok) {
-    const data = await res.json();
-    return { id: data.id, username: data.username, session: true };
-  }
-  return { id: -1, username: "", session: false };
-};
-
 export const useSession = () => useContext(SessionContext);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -72,7 +53,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const login = () => {
-    _setSession(true);
+    verifySession();
   };
 
   const logout = () => {

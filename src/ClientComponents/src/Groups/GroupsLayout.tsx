@@ -33,7 +33,7 @@ const GroupsLayout: React.FC<GroupsLayoutProps> = () => {
   const { canRender, get } = useFetch();
   useEffect(() => {
     get(`/group/v1/user/${session.id}`, responseHandlers);
-  }, [session.id]);
+  }, [session.canRender]);
   return (
     <SecureComponent>
       {!canRender ? (
