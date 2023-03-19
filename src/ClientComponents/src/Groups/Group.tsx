@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Tooltip from "./Tooltip";
 import { GroupType } from "./types";
 import IconButton from "../StandardComponents/IconButton";
@@ -10,11 +10,25 @@ import Button from "../StandardComponents/Button";
 
 type GroupProps = {
   group: GroupType;
-  color: string;
   deleteGroup: (id: GroupType["id"]) => void;
 };
 
-const Group: React.FC<GroupProps> = ({ group, color, deleteGroup }) => {
+const colors = [
+  "eff41e",
+  "1fcf6c",
+  "ff8339",
+  "7187ff",
+  "fe98ca",
+  "ff5b5f",
+  "9cceff",
+  "d74cbf",
+];
+
+const getRandomColor = () => {
+  return colors[Math.floor(Math.random() * colors.length)];
+};
+
+const Group: React.FC<GroupProps> = ({ group, deleteGroup }) => {
   const deleteResponseHandlers = {
     200: () => {
       addToast({ title: "Deleted successfully!", type: "success" });
@@ -104,7 +118,9 @@ const Group: React.FC<GroupProps> = ({ group, color, deleteGroup }) => {
             } cursor-pointer`}
             src={
               group.avatar_url ||
-              `https://api.dicebear.com/5.x/initials/svg?seed=${group.name}&backgroundColor=${color}&size=48`
+              `https://api.dicebear.com/5.x/initials/svg?seed=${
+                group.name
+              }&backgroundColor=${useMemo(() => getRandomColor(), [])}&size=48`
             }
             alt={group.name + " group avatar"}
           ></img>

@@ -32,18 +32,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [username, _setUsername] = useState("");
   const [id, _setId] = useState(-1);
 
-  const { addToast } = useToast();
-
   const responseHandlers = {
     200: (response: { id: number; username: string }) => {
       _setSession(true);
       _setUsername(response.username);
       _setId(response.id);
     },
-    403: () => {},
-    default: () => {
-      addToast({ title: "Couldn't verify your session.", type: "error" });
-    },
+    default: () => {},
   };
 
   const { get, canRender } = useFetch();
@@ -63,8 +58,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    verifySession();
-  }, []);
+    if (!session) {
+      verifySession();
+    }
+  }, [session]);
 
   const values = useMemo(
     () => ({ id, username, session, login, logout, verifySession, canRender }),

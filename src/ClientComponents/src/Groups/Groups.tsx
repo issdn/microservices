@@ -1,25 +1,10 @@
-import Button from "../StandardComponents/Button";
+import { useMemo } from "react";
 import IconButton from "../StandardComponents/IconButton";
 import Modal, { useModal } from "../StandardComponents/Modal/Modal";
 import CreateGroup from "./CreateGroup";
 import Group from "./Group";
 import JoinGroup from "./JoinGroup";
 import { GroupType } from "./types";
-
-const colors = [
-  "eff41e",
-  "1fcf6c",
-  "ff8339",
-  "7187ff",
-  "fe98ca",
-  "ff5b5f",
-  "9cceff",
-  "d74cbf",
-];
-
-const getRandomColor = () => {
-  return colors[Math.floor(Math.random() * colors.length)];
-};
 
 type GroupsProps = {
   groups: GroupType[];
@@ -42,12 +27,7 @@ const Groups: React.FC<GroupsProps> = ({ groups, addGroup, deleteGroup }) => {
           />
         </div>
         {groups.map((group) => (
-          <Group
-            deleteGroup={deleteGroup}
-            color={getRandomColor()}
-            group={group}
-            key={group.id}
-          />
+          <Group deleteGroup={deleteGroup} group={group} key={group.id} />
         ))}
       </div>
       <Modal isOpen={isOpen} close={close}>
