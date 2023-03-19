@@ -1,10 +1,13 @@
 type LayoutProps = {
   children: React.ReactNode;
+  styles?: string;
 };
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children, styles }) => {
   return (
-    <div className="w-full flex flex-col gap-y-4 justify-center items-center">
+    <div
+      className={`${styles} w-full flex flex-col gap-y-4 justify-center items-center`}
+    >
       {children}
     </div>
   );

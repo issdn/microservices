@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const statuses = {
   200: "OK",
@@ -41,28 +41,35 @@ type ResponseHandlers<T> = {
 
 export const useFetch = () => {
   const [loading, setLoading] = useState(false);
+  const [canRender, _setCanRender] = useState(false);
   const _sendRequest = async <T>(
     url: string,
     responseHandlers: ResponseHandlers<T>,
     options: RequestInit = {}
   ) => {
     setLoading(true);
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        ...options.headers,
-        withCredentials: "true",
-        "Content-Type": "application/json",
-      },
-    });
-    setLoading(false);
-    const status = response.status as Status;
-    const res = await response.json();
-    if (status in responseHandlers) {
-      (responseHandlers[status] as ResponseHandlerFunction<T>)(res);
-    } else {
-      responseHandlers.default(res);
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+          withCredentials: "true",
+          "Content-Type": "application/json",
+        },
+      });
+      const status = response.status as Status;
+      const res = await response.json();
+      if (status in responseHandlers) {
+        (responseHandlers[status] as ResponseHandlerFunction<T>)(res);
+      } else {
+        responseHandlers.default(res);
+      }
+    } catch (e) {
+      // TODO: Interceptor
+      console.log(e);
     }
+    setLoading(false);
+    _setCanRender(true);
   };
 
   const get = async <T>(
@@ -71,7 +78,6 @@ export const useFetch = () => {
     options: RequestInit = {}
   ) => {
     await _sendRequest(url, responseHandlers, {
-      method: "GET",
       ...options,
     });
   };
@@ -115,5 +121,5 @@ export const useFetch = () => {
     });
   };
 
-  return { loading, get, del, post, put };
+  return { canRender, loading, get, del, post, put };
 };

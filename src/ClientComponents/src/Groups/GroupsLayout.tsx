@@ -1,6 +1,5 @@
-import Layout from "../StandardComponents/Layout";
 import { SecureComponent } from "../User/sessionContext";
-import UserGroups from "./UserGroups";
+import Groups from "./Groups";
 import { useEffect, useState } from "react";
 import { useFetch } from "../StandardComponents/fetch";
 import { useSession } from "../User/sessionContext";
@@ -23,13 +22,25 @@ const GroupsLayout: React.FC<GroupsLayoutProps> = () => {
       addToast({ title: "Couldn't get your groups.", type: "error" }),
   };
 
-  const { loading, get } = useFetch();
+  const addGroup = (group: GroupType) => {
+    setGroups([...groups, group]);
+  };
+
+  const deleteGroup = (id: GroupType["id"]) => {
+    setGroups(groups.filter((group) => group.id !== id));
+  };
+
+  const { canRender, get } = useFetch();
   useEffect(() => {
     get(`/group/v1/user/${session.id}`, responseHandlers);
   }, [session.id]);
   return (
     <SecureComponent>
-      <Layout>{loading ? <Spinner /> : <UserGroups groups={groups} />}</Layout>
+      {!canRender ? (
+        <Spinner />
+      ) : (
+        <Groups deleteGroup={deleteGroup} addGroup={addGroup} groups={groups} />
+      )}
     </SecureComponent>
   );
 };

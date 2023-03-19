@@ -1,4 +1,4 @@
-import Button from "../../StandardComponents/Button";
+import RippleButton from "./RippleButton";
 import Layout from "../../StandardComponents/Layout";
 import Switch, { useSwitch } from "../../StandardComponents/Switch";
 import SwitchableContainer from "../../StandardComponents/SwitchableContainer";
@@ -7,6 +7,7 @@ import { useFetch } from "../../StandardComponents/fetch";
 import { useSession } from "../sessionContext";
 import Login from "./Login";
 import Registration from "./Registration";
+import Spinner from "../../StandardComponents/Spinner";
 
 const options = {
   Registration: {
@@ -40,7 +41,9 @@ const UserLayout: React.FC = () => {
 
   const { selected, handleSwitch } = useSwitch(options, "Registration");
   const { loading, post } = useFetch();
-  return (
+  return !session.canRender ? (
+    <Spinner />
+  ) : (
     <Layout>
       {!session.session ? (
         <>
@@ -57,14 +60,14 @@ const UserLayout: React.FC = () => {
       ) : (
         <div className="flex flex-col gap-y-2 text-secondary">
           <p className="text-neutral-800">You're now logged in!</p>
-          <Button
+          <RippleButton
             onClick={async () => {
               await post("/user/v1/auth/logout", responseHandlers);
             }}
             loading={loading}
           >
             Logout
-          </Button>
+          </RippleButton>
         </div>
       )}
     </Layout>

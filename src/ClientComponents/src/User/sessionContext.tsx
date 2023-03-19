@@ -1,10 +1,7 @@
-import {
-  useEffect,
-  useState,
-  createContext,
-  useContext,
-  useCallback,
-} from "react";
+import { useEffect, useState, createContext, useContext, useMemo } from "react";
+import Spinner from "../StandardComponents/Spinner";
+import { useFetch } from "../StandardComponents/fetch";
+import { useToast } from "../StandardComponents/Toast/hooks";
 
 type SessionContextType = {
   session: boolean;
@@ -13,6 +10,7 @@ type SessionContextType = {
   login: () => void;
   logout: () => void;
   verifySession: () => void;
+  canRender: boolean;
 };
 
 const SessionContext = createContext<SessionContextType>({
@@ -22,6 +20,7 @@ const SessionContext = createContext<SessionContextType>({
   login: () => {},
   logout: () => {},
   verifySession: () => {},
+  canRender: false,
 });
 
 const fetchSession = async (): Promise<{
@@ -52,13 +51,25 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
   const [username, _setUsername] = useState("");
   const [id, _setId] = useState(-1);
 
-  const verifySession = useCallback(() => {
-    fetchSession().then(({ id, username, session }) => {
-      _setSession(session);
-      _setUsername(username);
-      _setId(id);
-    });
-  }, []);
+  const { addToast } = useToast();
+
+  const responseHandlers = {
+    200: (response: { id: number; username: string }) => {
+      _setSession(true);
+      _setUsername(response.username);
+      _setId(response.id);
+    },
+    403: () => {},
+    default: () => {
+      addToast({ title: "Couldn't verify your session.", type: "error" });
+    },
+  };
+
+  const { get, canRender } = useFetch();
+
+  const verifySession = async () => {
+    await get("/user/v1/auth/session", responseHandlers);
+  };
 
   const login = () => {
     _setSession(true);
@@ -66,23 +77,33 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = () => {
     _setSession(false);
+    _setUsername("");
+    _setId(-1);
   };
 
+  useEffect(() => {
+    verifySession();
+  }, []);
+
+  const values = useMemo(
+    () => ({ id, username, session, login, logout, verifySession, canRender }),
+    [session, canRender]
+  );
+
   return (
-    <SessionContext.Provider
-      value={{ id, username, session, login, logout, verifySession }}
-    >
-      {children}
-    </SessionContext.Provider>
+    <SessionContext.Provider value={values}>{children}</SessionContext.Provider>
   );
 };
 
 export const SecureComponent: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { session, verifySession } = useSession();
-  useEffect(() => {
-    verifySession();
-  });
-  return session ? <>{children}</> : null;
+  const { session, canRender } = useSession();
+  return !canRender ? (
+    <Spinner />
+  ) : session ? (
+    <>{children}</>
+  ) : (
+    <p>You have to log in.</p>
+  );
 };

@@ -27,7 +27,7 @@ const App = () => {
   return (
     <ToastProvider addToast={addToast}>
       <SessionProvider>
-        <div className="flex flex-col h-full gap-y-16 pt-32 items-center justify-start">
+        <div className="flex h-screen flex-col items-center justify-start gap-y-16 py-24">
           <Switch
             options={options}
             selected={selected}

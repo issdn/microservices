@@ -2,11 +2,16 @@ import {
   InputsObjectsType,
   useInputs,
 } from "../../StandardComponents/Form/hooks";
-import { validator } from "../../StandardComponents/Form/validation";
+import {
+  canSubmitForm,
+  validator,
+} from "../../StandardComponents/Form/validation";
 import Form from "../../StandardComponents/Form/Form";
 import { useSession } from "../sessionContext";
 import { useFetch } from "../../StandardComponents/fetch";
 import { useToastContext } from "../../StandardComponents/Toast/toastContext";
+import InputsColumn from "../../StandardComponents/Form/InputsColumn";
+import RippleButton from "./RippleButton";
 
 const inputsObject: InputsObjectsType = [
   {
@@ -30,9 +35,6 @@ const inputsObject: InputsObjectsType = [
 ];
 
 const Login = () => {
-  const session = useSession();
-  const { addToast } = useToastContext();
-
   const responseHandlers = {
     200: () => {
       addToast({ title: "Login successful.", type: "success" });
@@ -47,6 +49,8 @@ const Login = () => {
       }),
   };
 
+  const session = useSession();
+  const { addToast } = useToastContext();
   const { loading, post } = useFetch();
   const formInputs = useInputs(inputsObject);
 
@@ -59,14 +63,20 @@ const Login = () => {
   };
 
   return (
-    <Form
-      inputsObject={inputsObject}
-      isLoading={loading}
-      onSubmit={onSubmit}
-      heading="Login"
-      buttonText="Login"
-      formInputs={formInputs}
-    />
+    <div className="flex flex-col gap-y-8 font-mono text-neutral-800 drop-shadow-md">
+      <Form
+        styles="gap-y-4 py-8"
+        onSubmit={onSubmit}
+        canSubmitForm={() =>
+          canSubmitForm(inputsObject, formInputs.inputsValues)
+        }
+        setAllTouched={formInputs.setAllTouched}
+      >
+        <h1 className="text-2xl">Login</h1>
+        <InputsColumn inputsObject={inputsObject} formInputs={formInputs} />
+        <RippleButton loading={loading}>Login</RippleButton>
+      </Form>
+    </div>
   );
 };
 

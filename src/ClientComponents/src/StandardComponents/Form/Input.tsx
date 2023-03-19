@@ -9,7 +9,21 @@ export type InputBaseProps = {
   inputValue: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   shouldShowErrors: boolean;
+  type?: InputTypes;
 };
+
+export type InputTypes = keyof typeof types;
+
+const types = {
+  neo: {
+    default: "shadow-neo-1 outline-none",
+    border: "focus:border-violet-600",
+  },
+  primary: {
+    default: "outline-none",
+    border: "focus:border-blue-600 border-neutral-900",
+  },
+} as const;
 
 const Input: React.FC<InputBaseProps> = ({
   inputObject,
@@ -18,6 +32,7 @@ const Input: React.FC<InputBaseProps> = ({
   onChange,
   inputValue,
   shouldShowErrors,
+  type = "neo",
 }) => {
   return (
     <div className="flex flex-col">
@@ -30,11 +45,11 @@ const Input: React.FC<InputBaseProps> = ({
         onBlur={setTouched}
         name={inputObject.name}
         placeholder={inputObject.label}
-        className={`w-full border-2 bg-secondary py-2.5 focus:border-violet-600 shadow-neo-1 rounded-xl px-4 outline-none ${
-          shouldShowErrors ? "border-red-500" : ""
-        }`}
+        className={`w-full rounded-xl border-2 bg-secondary py-2.5 px-4 ${
+          types[type].default
+        } ${shouldShowErrors ? "border-red-500" : types[type].border}`}
       />
-      <div className="flex flex-col gap-y-1 px-2 mt-1">
+      <div className="mt-1 flex flex-col gap-y-1 px-2">
         {inputObject.rated ? <PasswordStrength value={inputValue} /> : null}
         <InputError errors={errors} shouldShowErrors={shouldShowErrors} />
       </div>

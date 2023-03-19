@@ -11,6 +11,8 @@ module.exports = {
       },
       colors: {
         secondary: "#eeebf0",
+        "secondary-tint": "#f8f7f9",
+        "secondary-shade": "#d6d4d8",
       },
       keyframes: {
         ripple: {
@@ -19,23 +21,34 @@ module.exports = {
             opacity: 0,
           },
         },
-        slide: {
+        slideY: {
           "0%": {
             transform: "translateY(-100%)",
+            opacity: 0,
           },
           "100%": {
+            opacity: 1,
             transform: "translateY(0)",
+          },
+        },
+        scaleY: {
+          "0%": {
+            transform: "scaleY(0)",
+          },
+          "100%": {
+            transform: "scaleY(1)",
           },
         },
       },
       animation: {
         ripple: "ripple 800ms linear",
-        slide: "slide 800ms ease-in-out",
+        slideY: "slideY 300ms ease-in-out",
+        scaleY: "scaleY 100ms ease-out",
       },
       fonts: {
         mono: ["Space Mono", "monospace"],
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-no-scrollbar")],
 };

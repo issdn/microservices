@@ -1,6 +1,7 @@
 import logging
 import traceback
 from fastapi import HTTPException
+import mysql.connector.errors
 from pydantic import BaseModel
 import mysql.connector
 import os
@@ -46,7 +47,13 @@ class GroupDatabaseManager:
             self.cur.execute(query)
             return self.cur.fetchall()
 
-    def delete_group(self, group_id: int):
+    def delete_group(self, group_id: int, user_id: int):
+        check_if_user_is_owner_query = "SELECT * FROM msc.group WHERE id = %s AND owner_id = %s;"
+        self.cur.execute(check_if_user_is_owner_query, (group_id, user_id,))
+        group = self.cur.fetchone()
+        if group is None:
+            raise HTTPException(
+                status_code=409, detail="User is not the owner of the group.")
         query = "DELETE FROM msc.group WHERE id = %s;"
         self.cur.execute(query, (group_id,))
 
@@ -66,6 +73,9 @@ class GroupDatabaseManager:
         query = "SELECT * FROM msc.group WHERE token = %s;"
         self.cur.execute(query, (token,))
         group = self.cur.fetchone()
+        if group is None:
+            raise HTTPException(
+                status_code=404, detail="Group not found.")
         check_if_user_in_group_query = "SELECT * FROM msc.user_has_group WHERE user_id = %s AND group_id = %s;"
         self.cur.execute(check_if_user_in_group_query, (user_id, group["id"],))
         if self.cur.fetchone() is not None:
@@ -73,6 +83,7 @@ class GroupDatabaseManager:
                 status_code=400, detail="User is already in group.")
         join_query = "INSERT INTO msc.user_has_group (user_id, group_id) VALUES (%s, %s);"
         self.cur.execute(join_query, (user_id, group["id"],))
+        return group
 
     def leave_group(self, user_id: int, group_id: int):
         check_if_user_is_owner_query = "SELECT * FROM msc.group WHERE id = %s AND owner_id = %s;"

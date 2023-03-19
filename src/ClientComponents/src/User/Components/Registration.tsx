@@ -1,9 +1,14 @@
+import RippleButton from "./RippleButton";
 import Form from "../../StandardComponents/Form/Form";
+import InputsColumn from "../../StandardComponents/Form/InputsColumn";
 import {
   InputsObjectsType,
   useInputs,
 } from "../../StandardComponents/Form/hooks";
-import { validator } from "../../StandardComponents/Form/validation";
+import {
+  canSubmitForm,
+  validator,
+} from "../../StandardComponents/Form/validation";
 import { useToastContext } from "../../StandardComponents/Toast/toastContext";
 import { useFetch } from "../../StandardComponents/fetch";
 
@@ -64,14 +69,20 @@ const Registration: React.FC = () => {
   };
 
   return (
-    <Form
-      inputsObject={inputsObject}
-      isLoading={loading}
-      onSubmit={onSubmit}
-      heading="Registration"
-      buttonText="Register"
-      formInputs={formInputs}
-    />
+    <div className="font-mono text-neutral-800 drop-shadow-md">
+      <Form
+        styles="gap-y-4 py-8"
+        onSubmit={onSubmit}
+        canSubmitForm={() =>
+          canSubmitForm(inputsObject, formInputs.inputsValues)
+        }
+        setAllTouched={formInputs.setAllTouched}
+      >
+        <h1 className="text-2xl">Register</h1>
+        <InputsColumn inputsObject={inputsObject} formInputs={formInputs} />
+        <RippleButton loading={loading}>Register</RippleButton>
+      </Form>
+    </div>
   );
 };
 
